@@ -100,11 +100,11 @@ unsigned int descargar(Manna_Array &h, Manna_Array &dh)
 
 	int i = 0;
 	
+	/* lo saco afuera del loop para simplificar el cálculo de k */
 	// si es activo lo descargo aleatoriamente
 	if (h[i] > 1) {
 		for (int j = 0; j < h[i]; ++j) {
 			// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-			//~ int k = (i+2*(rand()%2)-1+N)%N;
 			int k = (i+2*(rand()&1)-1+N)%N; //&1 instead of %2
 			++dh[k];
 		}
@@ -123,12 +123,12 @@ unsigned int descargar(Manna_Array &h, Manna_Array &dh)
 			h[i] = 0;
 		}
 	}
-
+	
+	/* lo saco afuera del loop para simplificar el cálculo de k */
 	// si es activo lo descargo aleatoriamente
 	if (h[i] > 1) {
 		for (int j = 0; j < h[i]; ++j) {
 			// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-			//~ int k = (i+2*(rand()%2)-1+N)%N;
 			int k = (i+2*(rand()&1)-1+N)%N; //&1 instead of %2
 			++dh[k];
 		}
@@ -148,7 +148,8 @@ unsigned int descargar(Manna_Array &h, Manna_Array &dh)
 //===================================================================
 // Lo compilo asi: g++ tiny_manna.cpp -std=c++0x
 int main(){
-
+	ios::sync_with_stdio(0); cin.tie(0);
+	
 	//~ srand(time(0));
 	srand(12345);
 
@@ -169,13 +170,13 @@ int main(){
 	imprimir_array(h);
 	#endif
 
-	cout << "evolucion de de la pila de arena..."; cout.flush();
+	cout << "evolucion de la pila de arena..."; cout.flush();
 
 	ofstream activity_out("activity.dat");
 	int activity;
 	int t = 0;
 	do {
-		activity_out << (activity=descargar(h,dh)) << endl;
+		activity_out << (activity=descargar(h,dh)) << "\n";
 		#ifdef DEBUG
 		imprimir_array(h);
 		#endif
@@ -186,3 +187,38 @@ int main(){
 
 	return 0;
 }
+
+#if 0
+
+Achicamos la densidad a 0.88 para que sea más rápida la ejecución.
+Fijamos la semilla del random para poder comparar rendimientos más fácilmente.
+
+Mejor conjunto de flags -Ofast -flto
+
+Probamos: con g++
+-O1 -floop-vectorize -> best config (igual que -O3 y -Ofast) (mete instrucciones de SSE)
+-march=native (sin resultados / empeora ~1%)
+-flto (mejora ~8%)
+
+Desarmamos el primer y último elemento del loop principal de descargar()
+para simplificar el cálculo de k (innermost loop) (le sacamos un +N %N, 
+y cambiamos un %2 por &1) (no tuvo muchos resultados) (retestear)
+
+Optimizamos I/O (mejora un poco)
+
+***********************************************************************
+
+Queda por probar más compiladores. Usar zx81 cordobesa.
+
+
+TP: Cosas para hacer (faltan hacer los *)
+
+Opciones de compilación (explorar mucho).
+Mejoras algorítmicas (pensar algunas).
+Optimizaciones de cálculos.
+Unrolling de loops y otras fuentes de ILP.
+* Hugepages.
+* Estrategias cache-aware (blocking).
+* Profiling (perf) y timing (time). Normalizar el tiempo respecto al tamaño del problema (ns/spinflip por ejemplo).
+
+#endif
