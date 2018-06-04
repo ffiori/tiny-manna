@@ -97,18 +97,44 @@ void desestabilizacion_inicial(Manna_Array &h)
 unsigned int descargar(Manna_Array &h, Manna_Array &dh)
 {
 	dh.fill(0);
+
+	int i = 0;
 	
-	for (int i = 0; i < N; ++i) {
+	// si es activo lo descargo aleatoriamente
+	if (h[i] > 1) {
+		for (int j = 0; j < h[i]; ++j) {
+			// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
+			//~ int k = (i+2*(rand()%2)-1+N)%N;
+			int k = (i+2*(rand()&1)-1+N)%N; //&1 instead of %2
+			++dh[k];
+		}
+		h[i] = 0;
+	}
+	
+	for (i = 1; i < N-1; ++i) {
 		// si es activo lo descargo aleatoriamente
 		if (h[i] > 1) {
 			for (int j = 0; j < h[i]; ++j) {
 				// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-				int k = (i+2*(rand()%2)-1+N)%N;
+				//~ int k = (i+2*(rand()%2)-1+N)%N;
+				int k = i+2*(rand()&1)-1; //&1 instead of %2
 				++dh[k];
 			}
 			h[i] = 0;
 		}
 	}
+
+	// si es activo lo descargo aleatoriamente
+	if (h[i] > 1) {
+		for (int j = 0; j < h[i]; ++j) {
+			// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
+			//~ int k = (i+2*(rand()%2)-1+N)%N;
+			int k = (i+2*(rand()&1)-1+N)%N; //&1 instead of %2
+			++dh[k];
+		}
+		h[i] = 0;
+	}
+	
 
 	unsigned int nroactivos=0;
 	for (int i = 0; i < N; ++i) {
@@ -123,7 +149,8 @@ unsigned int descargar(Manna_Array &h, Manna_Array &dh)
 // Lo compilo asi: g++ tiny_manna.cpp -std=c++0x
 int main(){
 
-	srand(time(0));
+	//~ srand(time(0));
+	srand(12345);
 
 	// nro granitos en cada sitio, y su update
 	Manna_Array h, dh;
