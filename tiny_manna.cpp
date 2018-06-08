@@ -134,7 +134,6 @@ unsigned int descargar(Manna_Array &h, Manna_Array &dh)
 		}
 		h[i] = 0;
 	}
-	
 
 	unsigned int nroactivos=0;
 	for (int i = 0; i < N; ++i) {
@@ -205,6 +204,8 @@ para simplificar el cálculo de k (innermost loop) (le sacamos un +N %N,
 y cambiamos un %2 por &1) (no tuvo muchos resultados) (retestear)
 
 Optimizamos I/O (mejora un poco)
+
+Unroll manual de loops principales en descargar() (empeora)
 
 ***********************************************************************
 

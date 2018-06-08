@@ -2,7 +2,7 @@
 BIN = tiny_manna
 
 # Flags
-CFLAGS = -Wall -Wextra -Werror -std=c++0x -Ofast -flto     # -march=native
+CFLAGS = -Wall -Wextra -Werror -std=c++0x -Ofast -flto # -march=native
 LDFLAGS =
 
 # Compilers
