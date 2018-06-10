@@ -28,6 +28,9 @@ de iteraciones para mantener el tiempo de ejecución razonable. Se modificó
 en una de las copias la forma de manejar memoria para usar un allocator
 con mmap y hugepages basado en un ejemplo del código fuente de Linux.
 
+Testear en PC final. En Emilio-PC mejoró un poco, en Fefo-PC empeoró bastante.
+
+Cambio de C++ STL array<..,..> a old-school C-like arrays. Mejora muy poco.
 
 TODO: ver velocidad, parece que hugepages mejora un poco. Ver si es por
 hugepages o por cambiar array<int, N> a punteros old school.

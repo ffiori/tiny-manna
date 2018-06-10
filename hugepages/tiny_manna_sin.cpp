@@ -16,12 +16,15 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 
 #include <iostream>
 #include <fstream>
+#include <cstring>
 #include <array>
 #include <vector>
 #include <stdlib.h>
 
 // number of sites
 #define N (2 * 1024 * 1024 / 4)
+
+#define SIZE (N * 4)
 
 // number of sites
 //~ #define DENSITY 0.8924
@@ -33,7 +36,8 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 using namespace std;
 
 typedef double REAL;
-typedef array<int,N> Manna_Array; // fixed-sized array (recien me entero de que esto existe en STL...)
+//~ typedef array<int,N> Manna_Array; // fixed-sized array (recien me entero de que esto existe en STL...)
+typedef int Manna_Array[N]; // fixed-sized array (recien me entero de que esto existe en STL...)
 
 
 // CONDICION INICIAL ---------------------------------------------------------------
@@ -96,7 +100,8 @@ void desestabilizacion_inicial(Manna_Array &h)
 // DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
 unsigned int descargar(Manna_Array &h, Manna_Array &dh)
 {
-	dh.fill(0);
+	//~ dh.fill(0);
+	memset(dh, 0, SIZE);
 
 	int i = 0;
 	
