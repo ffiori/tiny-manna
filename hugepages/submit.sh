@@ -12,4 +12,4 @@
 
 export LC_ALL=C.UTF-8
 
-srun sh -c 'amplxe-cl -collect concurrency -collect memory-consumption ./tiny_manna_sin'
+srun sh -c 'test-all.sh'
