@@ -19,13 +19,14 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #include <cstring>
 #include <array>
 #include <vector>
-#include <stdlib.h>
+#include <cstdlib>
+#include <random>
 
 void *alloc(size_t size);
 void unalloc(void *addr);
 
 // number of sites
-#define N (2 * 1024 * 1024 / 4)
+//~ #define N (256 * 1024 * 1024 / 4)
 
 #define SIZE (N * 4)
 
@@ -39,8 +40,24 @@ void unalloc(void *addr);
 using namespace std;
 
 typedef double REAL;
-typedef int * Manna_Array; // fixed-sized array (recien me entero de que esto existe en STL...)
+typedef int * Manna_Array; // fixed-sized array (recien me entero de que esto existe en STL...) 
 
+/*
+static inline bool randbool()
+{
+	static int random;
+	static int calls=0;
+	if(calls++%32==0) random=rand();
+	else random>>=1;
+	return random&1;
+}
+*/
+
+static inline bool randbool() {
+        static default_random_engine generator;
+        uniform_int_distribution<int> distribution(0,1);
+        return distribution(generator);
+}
 
 // CONDICION INICIAL ---------------------------------------------------------------
 /*
@@ -85,7 +102,7 @@ void desestabilizacion_inicial(Manna_Array h)
 	for (int i = 0; i < N; ++i){
 		if (h[i] == 1) {
 			h[i] = 0;
-			int j=i+2*(rand()%2)-1; // izquierda o derecha
+			int j=i+2*(randbool()%2)-1; // izquierda o derecha
 
 			// corrijo por condiciones periodicas
 			if (j == N) j = 0;
@@ -108,22 +125,22 @@ unsigned int descargar(Manna_Array h, Manna_Array dh)
 	
 	/* lo saco afuera del loop para simplificar el cálculo de k */
 	// si es activo lo descargo aleatoriamente
-	if (h[i] > 1) {
-		for (int j = 0; j < h[i]; ++j) {
-			// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-			int k = (i+2*(rand()&1)-1+N)%N; //&1 instead of %2
-			++dh[k];
-		}
-		h[i] = 0;
-	}
+	//~ if (h[i] > 1) {
+		//~ for (int j = 0; j < h[i]; ++j) {
+			//~ // sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
+			//~ int k = (i+2*(randbool()&1)-1+N)%N; //&1 instead of %2
+			//~ ++dh[k];
+		//~ }
+		//~ h[i] = 0;
+	//~ }
 	
-	for (i = 1; i < N-1; ++i) {
+	for (i = 0; i < N; ++i) {
 		// si es activo lo descargo aleatoriamente
 		if (h[i] > 1) {
 			for (int j = 0; j < h[i]; ++j) {
 				// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-				//~ int k = (i+2*(rand()%2)-1+N)%N;
-				int k = i+2*(rand()&1)-1; //&1 instead of %2
+				int k = (i+2*(randbool()%2)-1+N)%N;
+				//~ int k = i+2*(randbool()&1)-1; //&1 instead of %2
 				++dh[k];
 			}
 			h[i] = 0;
@@ -132,14 +149,14 @@ unsigned int descargar(Manna_Array h, Manna_Array dh)
 	
 	/* lo saco afuera del loop para simplificar el cálculo de k */
 	// si es activo lo descargo aleatoriamente
-	if (h[i] > 1) {
-		for (int j = 0; j < h[i]; ++j) {
-			// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-			int k = (i+2*(rand()&1)-1+N)%N; //&1 instead of %2
-			++dh[k];
-		}
-		h[i] = 0;
-	}
+	//~ if (h[i] > 1) {
+		//~ for (int j = 0; j < h[i]; ++j) {
+			//~ // sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
+			//~ int k = (i+2*(rand()&1)-1+N)%N; //&1 instead of %2
+			//~ ++dh[k];
+		//~ }
+		//~ h[i] = 0;
+	//~ }
 
 	unsigned int nroactivos=0;
 	for (int i = 0; i < N; ++i) {
@@ -156,7 +173,7 @@ int main(){
 	ios::sync_with_stdio(0); cin.tie(0);
 	
 	//~ srand(time(0));
-	srand(12345);
+	//~ srand(12345);
 
 	// nro granitos en cada sitio, y su update
 	Manna_Array h = (int*)alloc(SIZE), dh = (int*)alloc(SIZE);
