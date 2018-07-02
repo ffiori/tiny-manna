@@ -1,18 +1,25 @@
 #!/bin/bash
 
+file="results.txt"
+runs=3
 start=1024             #size=4KB
 end=$(( 1024*1024*8 )) #size=32MB
 n=$start #cantidad de ints del array (o sea, size = N*4 bytes)
 
+echo "***************** NEW TEST BEGINS! *****************" >> $file
+
 while [ $n -le $end ]
 do
-		size=$(($n*4/1024))
-        echo "Tamaño " $size " KBytes. N vale: " $n
+	size=$(($n*4/1024))
+        echo "***************** Tamaño " $size " KBytes. N vale (slots): " $n " *****************" >> $file
         make clean
         make tiny_manna N=$n
 
         #execute
-        amplxe-cl -collect hpc-performance -r report$size ./tiny_manna #ver cómo hacer muchas runs de un mismo programa -allow-multiple-runs puede ser una opcion
+#        amplxe-cl -collect hpc-performance -r report$size ./tiny_manna
+	perf stat -r $runs -e instructions,cycles,cycle_activity.cycles_no_execute,cache-references,cache-misses ./tiny_manna >> $file 2>&1
 
         n=$(($n*2))
 done
+
+echo "********************************************************************" >> $file

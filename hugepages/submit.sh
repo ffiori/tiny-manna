@@ -12,4 +12,8 @@
 
 export LC_ALL=C.UTF-8
 
-srun sh -c 'test-all.sh'
+srun sh -c 'sh test-all.sh'
+
+# "sbatch archivo" lo manda a correr
+# "scontrol show job NNNN" te muestra data
+# y te sale un archivo tipo en el home slurm-NNN.out con la salida de los comandos
