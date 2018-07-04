@@ -1,11 +1,13 @@
 #!/bin/bash
 
 MANNA_BINARY="./tiny_manna_sin"
+SUFFIX="-small"
 if [ "$HUGE" = "1" ]; then
         MANNA_BINARY="./tiny_manna_con"
+        SUFFIX="-huge"
 fi
 
-file="results.txt"
+file="results$SUFFIX.txt"
 runs=3
 start=1024             #size=4KB
 end=$(( 1024*1024*8 )) #size=32MB
