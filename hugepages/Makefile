@@ -6,7 +6,7 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native # -mavx2
 #CXXFLAGS = -std=c++0x -fast #icc compiling options
 
 # Compilers
-CXX = g++
+CXX = g++-8
 
 # Default N
 N?=1048576
