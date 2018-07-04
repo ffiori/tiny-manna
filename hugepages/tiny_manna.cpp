@@ -40,7 +40,7 @@ using namespace std;
 typedef double REAL;
 typedef int * Manna_Array;
 
-static mt19937 generator;
+static default_random_engine generator;
 
 #ifndef SEED
 #define SEED 0
@@ -48,7 +48,7 @@ static mt19937 generator;
 
 void randinit() {
 	random_device rd;
-	generator = mt19937(SEED ? SEED : rd());
+	generator = default_random_engine(SEED ? SEED : rd());
 }
 
 static inline bool randbool() {
