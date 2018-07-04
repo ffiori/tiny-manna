@@ -102,7 +102,7 @@ void desestabilizacion_inicial(Manna_Array h)
 	for (int i = 0; i < N; ++i){
 		if (h[i] == 1) {
 			h[i] = 0;
-			int j=i+2*(randbool()%2)-1; // izquierda o derecha
+			int j=i+2*randbool()-1; // izquierda o derecha
 
 			// corrijo por condiciones periodicas
 			if (j == N) j = 0;
@@ -139,7 +139,7 @@ unsigned int descargar(Manna_Array h, Manna_Array dh)
 		if (h[i] > 1) {
 			for (int j = 0; j < h[i]; ++j) {
 				// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-				int k = (i+2*(randbool()%2)-1+N)%N;
+				int k = (i+2*randbool()-1+N)%N;
 				//~ int k = i+2*(randbool()&1)-1; //&1 instead of %2
 				++dh[k];
 			}

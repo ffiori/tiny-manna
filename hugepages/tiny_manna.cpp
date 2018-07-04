@@ -116,24 +116,12 @@ void desestabilizacion_inicial(Manna_Array &h)
 }
 
 // DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
-unsigned int descargar(Manna_Array &h, Manna_Array &dh)
+/*unsigned int descargar_old(Manna_Array &h, Manna_Array &dh)
 {
-	//~ dh.fill(0);
 	memset(dh, 0, SIZE);
 
 	int i = 0;
-	
-	/* lo saco afuera del loop para simplificar el cálculo de k */
-/*	// si es activo lo descargo aleatoriamente
-	if (h[i] > 1) {
-		for (int j = 0; j < h[i]; ++j) {
-			// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-			int k = (i+2*(rand()&1)-1+N)%N; //&1 instead of %2
-			++dh[k];
-		}
-		h[i] = 0;
-	}
-*/
+
 	for (i = 0; i < N; ++i) {
 		// si es activo lo descargo aleatoriamente
 		if (h[i] > 1) {
@@ -148,22 +136,66 @@ unsigned int descargar(Manna_Array &h, Manna_Array &dh)
 		}
 	}
 	
-	/* lo saco afuera del loop para simplificar el cálculo de k */
-	// si es activo lo descargo aleatoriamente
-/*	if (h[i] > 1) {
-		for (int j = 0; j < h[i]; ++j) {
-			// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-			int k = (i+2*(rand()&1)-1+N)%N; //&1 instead of %2
-			++dh[k];
-		}
-		h[i] = 0;
-	}
-*/
 	unsigned int nroactivos=0;
 	for (int i = 0; i < N; ++i) {
 		h[i] += dh[i];
 		nroactivos += (h[i]>1);
 	}
+
+	return nroactivos;
+}
+*/
+
+unsigned int descargar(Manna_Array &h, Manna_Array &dh)
+{
+	memset(dh, 0, SIZE);
+
+	//descargo h[0]
+	if (h[0] > 1) {
+		for (int j = 0; j < h[0]; ++j) {
+			int k = (2*randbool()-1+N)%N;
+			++dh[k];
+		}
+		h[0] = 0;
+	}
+	
+	//descargo h[1]
+	if (h[1] > 1) {
+		for (int j = 0; j < h[1]; ++j) {
+			int k = 2*randbool();
+			++dh[k];
+		}
+		h[1] = 0;
+	}
+
+	//descargo de 2 a N-1, cuento de 1 a N-2
+	unsigned int nroactivos = 0;
+	int i = 1;
+	
+	for (i = 1; i < N-1; ++i) {
+		// si es activo lo descargo aleatoriamente
+		if (h[i+1] > 1) {
+			for (int j = 0; j < h[i+1]; ++j) {
+				// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
+				int k = (i+2*randbool()+N)%N;
+				//int k = (i+2*(rand()%2)-1+N)%N;
+				//int k = i+2*(rand()&1)-1; //&1 instead of %2
+				++dh[k];
+			}
+			h[i+1] = 0;
+		}
+		
+		h[i] += dh[i];
+		nroactivos += (h[i]>1);
+	}
+
+	//cuento N-1
+	h[N-1] += dh[N-1];
+	nroactivos += (h[N-1]>1);
+
+	//cuento 0
+	h[0] += dh[0];
+	nroactivos += (h[0]>1);
 
 	return nroactivos;
 }
