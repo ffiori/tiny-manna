@@ -1,5 +1,10 @@
 #!/bin/bash
 
+MANNA_BINARY="./tiny_manna_sin"
+if [ "$HUGE" = "1" ]; then
+        MANNA_BINARY="./tiny_manna_con"
+fi
+
 file="results.txt"
 runs=3
 start=1024             #size=4KB
@@ -16,8 +21,7 @@ do
         make tiny_manna N=$n
 
         #execute
-#        amplxe-cl -collect hpc-performance -r report$size ./tiny_manna
-	perf stat -r $runs -e instructions,cycles,cycle_activity.cycles_no_execute,cache-references,cache-misses ./tiny_manna >> $file 2>&1
+	perf stat -r $runs -e instructions,cycles,cycle_activity.cycles_no_execute,cache-references,cache-misses $MANNA_BINARY >> $file 2>&1
 
         n=$(($n*2))
 done
