@@ -22,12 +22,13 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #include <cstdlib>
 #include <random>
 
+#include "huge-alloc.h"
+
 // number of sites
 //#define N (1024 / 4) //2MB data
 
 #define SIZE (N * 4)
 
-// number of sites
 //~ #define DENSITY 0.8924
 #define DENSITY 0.88
 
@@ -37,21 +38,20 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 using namespace std;
 
 typedef double REAL;
-//~ typedef array<int,N> Manna_Array; // fixed-sized array (recien me entero de que esto existe en STL...)
-typedef int Manna_Array[N]; // fixed-sized array (recien me entero de que esto existe en STL...)
+typedef int * Manna_Array;
 
-/*
-static inline bool randbool()
-{
-	static int random;
-	static int calls=0;
-	if(calls++%32==0) random=rand();
-	else random>>=1;
-	return random&1;
+static mt19937 generator;
+
+#ifndef SEED
+#define SEED 0
+#endif
+
+void randinit() {
+	random_device rd;
+	generator = mt19937(SEED ? SEED : rd());
 }
-*/
+
 static inline bool randbool() {
-        static default_random_engine generator;
         uniform_int_distribution<int> distribution(0,1);
         return distribution(generator);
 }
@@ -62,14 +62,14 @@ static inline bool randbool() {
 Para generar una condicion inicial suficientemente uniforme con una densidad
 lo mas aproximada (exacta cuando N->infinito) al numero real DENSITY, podemos hacer asi:
 */
-void inicializacion(Manna_Array &h)
+void inicializacion(Manna_Array h)
 {
 	for(int i = 0; i < N; ++i) {
 		h[i] = (int)((i+1)*DENSITY)-(int)(i*DENSITY);
 	}
 }
 
-void imprimir_array(Manna_Array &h)
+void imprimir_array(Manna_Array h)
 {
 	int nrogranitos=0;
 	int nrogranitos_activos=0;
@@ -94,14 +94,13 @@ El problema con la condicion inicial de arriba es que es estable, no tiene sitio
 y por tanto no evolucionara. Hay que desestabilizarla de alguna forma.
 Una forma es agarrar cada granito, y tirarlo a su izquierda o derecha aleatoriamente...
 */
-void desestabilizacion_inicial(Manna_Array &h)
+void desestabilizacion_inicial(Manna_Array h)
 {
 	vector<int> index_a_incrementar;
 	for (int i = 0; i < N; ++i){
 		if (h[i] == 1) {
 			h[i] = 0;
-			//int j=i+2*(rand()%2)-1; // izquierda o derecha
-			int j=i+2*randbool()-1;
+			int j=i+2*randbool()-1; // izquierda o derecha
 
 			// corrijo por condiciones periodicas
 			if (j == N) j = 0;
@@ -116,7 +115,7 @@ void desestabilizacion_inicial(Manna_Array &h)
 }
 
 // DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
-/*unsigned int descargar_old(Manna_Array &h, Manna_Array &dh)
+unsigned int descargar(Manna_Array h, Manna_Array dh)
 {
 	memset(dh, 0, SIZE);
 
@@ -128,8 +127,6 @@ void desestabilizacion_inicial(Manna_Array &h)
 			for (int j = 0; j < h[i]; ++j) {
 				// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
 				int k = (i+2*randbool()-1+N)%N;
-				//int k = (i+2*(rand()%2)-1+N)%N;
-				//int k = i+2*(rand()&1)-1; //&1 instead of %2
 				++dh[k];
 			}
 			h[i] = 0;
@@ -144,72 +141,16 @@ void desestabilizacion_inicial(Manna_Array &h)
 
 	return nroactivos;
 }
-*/
-
-unsigned int descargar(Manna_Array &h, Manna_Array &dh)
-{
-	memset(dh, 0, SIZE);
-
-	//descargo h[0]
-	if (h[0] > 1) {
-		for (int j = 0; j < h[0]; ++j) {
-			int k = (2*randbool()-1+N)%N;
-			++dh[k];
-		}
-		h[0] = 0;
-	}
-	
-	//descargo h[1]
-	if (h[1] > 1) {
-		for (int j = 0; j < h[1]; ++j) {
-			int k = 2*randbool();
-			++dh[k];
-		}
-		h[1] = 0;
-	}
-
-	//descargo de 2 a N-1, cuento de 1 a N-2
-	unsigned int nroactivos = 0;
-	int i = 1;
-	
-	for (i = 1; i < N-1; ++i) {
-		// si es activo lo descargo aleatoriamente
-		if (h[i+1] > 1) {
-			for (int j = 0; j < h[i+1]; ++j) {
-				// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-				int k = (i+2*randbool()+N)%N;
-				//int k = (i+2*(rand()%2)-1+N)%N;
-				//int k = i+2*(rand()&1)-1; //&1 instead of %2
-				++dh[k];
-			}
-			h[i+1] = 0;
-		}
-		
-		h[i] += dh[i];
-		nroactivos += (h[i]>1);
-	}
-
-	//cuento N-1
-	h[N-1] += dh[N-1];
-	nroactivos += (h[N-1]>1);
-
-	//cuento 0
-	h[0] += dh[0];
-	nroactivos += (h[0]>1);
-
-	return nroactivos;
-}
 
 //===================================================================
 // Lo compilo asi: g++ tiny_manna.cpp -std=c++0x
 int main(){
 	ios::sync_with_stdio(0); cin.tie(0);
 	
-//	srand(time(0));
-//	srand(12345);
+	randinit();
 
 	// nro granitos en cada sitio, y su update
-	Manna_Array h, dh;
+	Manna_Array h = (int*)alloc(SIZE), dh = (int*)alloc(SIZE);
 
 	cout << "estado inicial estable de la pila de arena...";
 	inicializacion(h);

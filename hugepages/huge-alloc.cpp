@@ -23,15 +23,19 @@
 #define MAP_HUGETLB 0x40000 /* arch specific */
 #endif
 
+#ifdef HUGE
+#define EXTRA_FLAGS MAP_HUGETLB
+#else
+#define EXTRA_FLAGS 0
+#endif
+
 /* Only ia64 requires this */
 #ifdef __ia64__
 #define ADDR (void *)(0x8000000000000000UL)
-//#define FLAGS (MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB | MAP_FIXED)
-#define FLAGS (MAP_PRIVATE | MAP_ANONYMOUS |  MAP_FIXED)
+#define FLAGS (MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED | EXTRA_FLAGS)
 #else
 #define ADDR (void *)(0x0UL)
-//#define FLAGS (MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB)
-#define FLAGS (MAP_PRIVATE | MAP_ANONYMOUS)
+#define FLAGS (MAP_PRIVATE | MAP_ANONYMOUS | EXTRA_FLAGS)
 #endif
 
 void *alloc(size_t size)
