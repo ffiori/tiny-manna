@@ -20,7 +20,7 @@ do
 	size=$(($n*4/1024))
         echo "***************** Tamaño " $size " KBytes. N vale (slots): " $n " *****************" >> $file
         make clean
-        make tiny_manna N=$n
+        make all N=$n
 
         #execute
 	perf stat -r $runs -e instructions,cycles,cycle_activity.cycles_no_execute,cache-references,cache-misses $MANNA_BINARY >> $file 2>&1
