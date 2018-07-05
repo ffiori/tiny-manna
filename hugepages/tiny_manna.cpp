@@ -62,14 +62,14 @@ static inline bool randbool() {
 Para generar una condicion inicial suficientemente uniforme con una densidad
 lo mas aproximada (exacta cuando N->infinito) al numero real DENSITY, podemos hacer asi:
 */
-void inicializacion(Manna_Array h)
+void inicializacion(Manna_Array __restrict__ h)
 {
 	for(int i = 0; i < N; ++i) {
 		h[i] = (int)((i+1)*DENSITY)-(int)(i*DENSITY);
 	}
 }
 
-void imprimir_array(Manna_Array h)
+void imprimir_array(Manna_Array __restrict__ h)
 {
 	int nrogranitos=0;
 	int nrogranitos_activos=0;
@@ -94,17 +94,17 @@ El problema con la condicion inicial de arriba es que es estable, no tiene sitio
 y por tanto no evolucionara. Hay que desestabilizarla de alguna forma.
 Una forma es agarrar cada granito, y tirarlo a su izquierda o derecha aleatoriamente...
 */
-void desestabilizacion_inicial(Manna_Array h)
+void desestabilizacion_inicial(Manna_Array __restrict__ h)
 {
 	vector<int> index_a_incrementar;
 	for (int i = 0; i < N; ++i){
 		if (h[i] == 1) {
 			h[i] = 0;
-			int j=i+2*randbool()-1; // izquierda o derecha
+			int j=(i+2*randbool()-1+N)%N; // izquierda o derecha
 
 			// corrijo por condiciones periodicas
-			if (j == N) j = 0;
-			if (j == -1) j = N-1;
+			//if (j == N) j = 0;
+			//if (j == -1) j = N-1;
 
 			index_a_incrementar.push_back(j);
 		}
@@ -115,7 +115,7 @@ void desestabilizacion_inicial(Manna_Array h)
 }
 
 // DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
-unsigned int descargar(Manna_Array h, Manna_Array dh)
+unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 {
 	memset(dh, 0, SIZE);
 
@@ -132,7 +132,7 @@ unsigned int descargar(Manna_Array h, Manna_Array dh)
 			h[i] = 0;
 		}
 	}
-	
+
 	unsigned int nroactivos=0;
 	for (int i = 0; i < N; ++i) {
 		h[i] += dh[i];
@@ -146,7 +146,7 @@ unsigned int descargar(Manna_Array h, Manna_Array dh)
 // Lo compilo asi: g++ tiny_manna.cpp -std=c++0x
 int main(){
 	ios::sync_with_stdio(0); cin.tie(0);
-	
+
 	randinit();
 
 	// nro granitos en cada sitio, y su update
