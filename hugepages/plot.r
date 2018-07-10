@@ -12,7 +12,8 @@ ggplot(res, aes(x = slots, y = normtime)) +
   scale_x_log10(labels = comma) +
   labs(y = "Tiempo de ejecución normalizado (slots/s)") +
   labs(x = "Tamaño del problema (slots, log)") +
-  theme(legend.title=element_blank())
+  theme(legend.title=element_blank()) + 
+  geom_vline(xintercept=8192) + geom_vline(xintercept=65536) + geom_vline(xintercept=3932160)
 
 ggplot(res, aes(x = slots, y = ipc)) +
   geom_line() +
@@ -20,7 +21,8 @@ ggplot(res, aes(x = slots, y = ipc)) +
   scale_x_log10(labels = comma) +
   labs(y = "Instrucciones por ciclo (IPC)") +
   labs(x = "Tamaño del problema (slots, log)") +
-  theme(legend.title=element_blank())
+  theme(legend.title=element_blank()) +
+  geom_vline(xintercept=8192) + geom_vline(xintercept=65536) + geom_vline(xintercept=3932160)
 
 ggplot(res, aes(x = slots, y = missratio)) +
   geom_line() +
@@ -28,4 +30,5 @@ ggplot(res, aes(x = slots, y = missratio)) +
   scale_x_log10(labels = comma) +
   labs(y = "Cache miss ratio (%)") +
   labs(x = "Tamaño del problema (slots, log)") +
-  theme(legend.title=element_blank())
+  theme(legend.title=element_blank()) +
+  geom_vline(xintercept=8192) + geom_vline(xintercept=65536) + geom_vline(xintercept=3932160)
