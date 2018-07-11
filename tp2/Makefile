@@ -2,7 +2,7 @@
 BIN = tiny_manna
 
 # Flags
-CXXFLAGS = -Wall -Wextra -std=c++0x -Ofast -flto -march=native -fpermissive # -mavx2
+CXXFLAGS = -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native # -mavx2
 #CXXFLAGS = -std=c++0x -fast #icc compiling options
 
 # Compilers

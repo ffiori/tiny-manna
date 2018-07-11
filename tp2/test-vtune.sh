@@ -1,7 +1,7 @@
 #!/bin/bash
 
-MANNA_BINARY="./tiny_manna_sin"
-SUFFIX="-small"
+MANNA_BINARY="./tiny_manna"
+SUFFIX=""
 if [ "$HUGE" = "1" ]; then
         MANNA_BINARY="./tiny_manna_con"
         SUFFIX="-huge"

@@ -118,8 +118,8 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 // DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
 unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_)
 {
-	Manna_Array __restrict__ h = __builtin_assume_aligned(h_,64);
-	Manna_Array __restrict__ dh = __builtin_assume_aligned(dh_,64);
+	Manna_Array __restrict__ h = (Manna_Array) __builtin_assume_aligned(h_,64);
+	Manna_Array __restrict__ dh = (Manna_Array) __builtin_assume_aligned(dh_,64);
 	
 	memset(dh, 0, SIZE);
 
@@ -155,7 +155,7 @@ int main(){
 
 	// nro granitos en cada sitio, y su update
 	//~ Manna_Array h = (int*)alloc(SIZE), dh = (int*)alloc(SIZE);
-	Manna_Array h = aligned_alloc(64, SIZE), dh = aligned_alloc(64, SIZE);
+	Manna_Array h = (Manna_Array) aligned_alloc(64, SIZE), dh = (Manna_Array) aligned_alloc(64, SIZE);
 
 	cout << "estado inicial estable de la pila de arena...";
 	inicializacion(h);
