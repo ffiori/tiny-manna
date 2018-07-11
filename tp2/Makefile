@@ -1,0 +1,26 @@
+# Binary file
+BIN = tiny_manna
+
+# Flags
+CXXFLAGS = -Wall -Wextra -std=c++0x -Ofast -flto -march=native -fpermissive # -mavx2
+#CXXFLAGS = -std=c++0x -fast #icc compiling options
+
+# Compilers
+CXX = g++
+
+# Default N
+N?=1048576
+
+# Seed. 0 = random
+SEED?=0
+
+.PHONY: all clean
+
+all: $(BIN)
+
+# Rules
+tiny_manna: tiny_manna.cpp huge-alloc.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^ -DN=$(N) -DSEED=$(SEED) -DHUGE
+
+clean:
+	rm -f $(BIN) *.o *.dat
