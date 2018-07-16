@@ -2,11 +2,11 @@
 BIN = tiny_manna
 
 # Flags
-CXXFLAGS = -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native # -mavx2
+CXXFLAGS = -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native #-DDEBUG # -mavx2
 #CXXFLAGS = -std=c++0x -fast #icc compiling options
 
 # Compilers
-CXX = g++-8
+CXX = g++
 
 # Default N
 N?=1048576
@@ -20,7 +20,7 @@ all: $(BIN)
 
 # Rules
 tiny_manna: tiny_manna.cpp #huge-alloc.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $^ -DN=$(N) -DSEED=$(SEED) -DHUGE
+	$(CXX) $(CXXFLAGS) -o $@ $^ -DN=$(N) -DSEED=$(SEED) #-DHUGE
 
 clean:
 	rm -f $(BIN) *.o *.dat

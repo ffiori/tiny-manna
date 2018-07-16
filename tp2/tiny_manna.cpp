@@ -25,6 +25,8 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #include <malloc.h>
 //#include "huge-alloc.h"
 
+#define INTSZ 32
+
 // number of sites
 //#define N (1024 / 4) //2MB data
 
@@ -50,6 +52,7 @@ static default_random_engine generator;
 void randinit() {
 	random_device rd;
 	generator = default_random_engine(SEED ? SEED : rd());
+	srand(SEED ? SEED : time(NULL));
 }
 
 static inline bool randbool() {
@@ -77,7 +80,7 @@ void imprimir_array(Manna_Array __restrict__ h)
 
 	// esto dibuja los granitos en cada sitio y los cuenta
 	for(int i = 0; i < N; ++i) {
-		cout << h[i] << " ";
+		if(h[i]>5) cout << h[i] << " ";
 		nrogranitos += h[i];
 		nrogranitos_activos += (h[i]>1);
 	}
@@ -118,7 +121,7 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 // DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
 unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_)
 {
-h_[0] = 0x123456; //DUMMY
+//~ h_[0] = 0x123456; //DUMMY
 
 	Manna_Array __restrict__ h = (Manna_Array) __builtin_assume_aligned(h_,128);
 	Manna_Array __restrict__ dh = (Manna_Array) __builtin_assume_aligned(dh_,128);
@@ -130,16 +133,23 @@ h_[0] = 0x123456; //DUMMY
 	for (i = 0; i < N; ++i) {
 		// si es activo lo descargo aleatoriamente
 		if (h[i] > 1) {
-			for (int j = 0; j < h[i]; ++j) {
-				// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-				int k = (i+2*randbool()-1+N)%N;
-				++dh[k];
-			}
+			unsigned int r = rand() << (INTSZ-h[i]);
+			int right = __builtin_popcount(r);
+			
+			dh[(i+1)%N] += right;
+			dh[(i-1+N)%N] += h[i]-right;
+			
+			//~ for (int j = 0; j < h[i]; ++j) {
+				//~ // sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
+				//~ int k = (i+2*randbool()-1+N)%N;
+				//~ ++dh[k];
+			//~ }
+			
 			h[i] = 0;
 		}
 	}
 
-h[0] = 0x7777; //DUMMY
+//~ h[0] = 0x7777; //DUMMY
 
 	unsigned int nroactivos=0;
 	for (int i = 0; i < N; ++i) {
@@ -147,7 +157,7 @@ h[0] = 0x7777; //DUMMY
 		nroactivos += (h[i]>1);
 	}
 
-h[0] = 0xFEF0; //DUMMY xD
+//~ h[0] = 0xFEF0; //DUMMY xD
 
 	return nroactivos;
 }
@@ -159,6 +169,10 @@ int main(){
 
 	randinit();
 
+	#ifdef DEBUG
+	cout<<"maximo random: "<<RAND_MAX<<endl;
+	#endif
+
 	// nro granitos en cada sitio, y su update
 	//~ Manna_Array h = (int*)alloc(SIZE), dh = (int*)alloc(SIZE);
 	Manna_Array h = (Manna_Array) aligned_alloc(128, SIZE), dh = (Manna_Array) aligned_alloc(128, SIZE);
@@ -167,14 +181,14 @@ int main(){
 	inicializacion(h);
 	cout << "LISTO\n";
 	#ifdef DEBUG
-	imprimir_array(h);
+	//~ imprimir_array(h);
 	#endif
 
 	cout << "estado inicial desestabilizado de la pila de arena...";
 	desestabilizacion_inicial(h);
 	cout << "LISTO\n";
 	#ifdef DEBUG
-	imprimir_array(h);
+	//~ imprimir_array(h);
 	#endif
 
 	cout << "evolucion de la pila de arena..."; cout.flush();
@@ -185,7 +199,8 @@ int main(){
 	do {
 		activity_out << (activity=descargar(h,dh)) << "\n";
 		#ifdef DEBUG
-		imprimir_array(h);
+		if(t and t%100==0)
+			imprimir_array(h);
 		#endif
 		++t;
 	} while(activity > 0 && t < NSTEPS); // si la actividad decae a cero, esto no evoluciona mas...
