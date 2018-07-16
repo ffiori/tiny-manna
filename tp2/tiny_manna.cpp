@@ -142,15 +142,22 @@ unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_
 			dh[(i-1+N)%N] += h[i]-right;
 			*/
 			
-			while(h[i]){
-				int qty = min(h[i],32);
-				h[i]-=qty;
-				uniform_int_distribution<int> distribution(0,(1LL<<qty)-1);
-				int right = __builtin_popcount(distribution(generator));
-				//cout<<qty<<" "<<(1LL<<qty)-1<<" "<<distribution(generator)<<" "<<right<<endl;
-				dh[(i+1)%N] += right;
-				dh[(i-1+N)%N] += qty-right;
+			//~ while(h[i]){
+				//~ int qty = min(h[i],32);
+				//~ h[i]-=qty;
+				//~ uniform_int_distribution<int> distribution(0,(1LL<<qty)-1);
+				//~ int right = __builtin_popcount(distribution(generator));
+				//~ //cout<<qty<<" "<<(1LL<<qty)-1<<" "<<distribution(generator)<<" "<<right<<endl;
+				//~ dh[(i+1)%N] += right;
+				//~ dh[(i-1+N)%N] += qty-right;
+			//~ }
+			
+			int right=0;
+			for (int j = 0; j < h[i]; ++j) {
+				right += randbool();
 			}
+			dh[(i+1)%N] += right;
+			dh[(i-1+N)%N] += h[i]-right;
 			
 			//~ for (int j = 0; j < h[i]; ++j) {
 				//~ // sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
