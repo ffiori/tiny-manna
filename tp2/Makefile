@@ -19,7 +19,7 @@ SEED?=0
 all: $(BIN)
 
 # Rules
-tiny_manna: tiny_manna.cpp huge-alloc.cpp
+tiny_manna: tiny_manna.cpp #huge-alloc.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $^ -DN=$(N) -DSEED=$(SEED) -DHUGE
 
 clean:

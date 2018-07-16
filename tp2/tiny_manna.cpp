@@ -23,7 +23,7 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #include <random>
 
 #include <malloc.h>
-#include "huge-alloc.h"
+//#include "huge-alloc.h"
 
 // number of sites
 //#define N (1024 / 4) //2MB data
@@ -118,9 +118,11 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 // DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
 unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_)
 {
-	Manna_Array __restrict__ h = (Manna_Array) __builtin_assume_aligned(h_,64);
-	Manna_Array __restrict__ dh = (Manna_Array) __builtin_assume_aligned(dh_,64);
-	
+h_[0] = 0x123456; //DUMMY
+
+	Manna_Array __restrict__ h = (Manna_Array) __builtin_assume_aligned(h_,128);
+	Manna_Array __restrict__ dh = (Manna_Array) __builtin_assume_aligned(dh_,128);
+
 	memset(dh, 0, SIZE);
 
 	int i = 0;
@@ -137,11 +139,15 @@ unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_
 		}
 	}
 
+h[0] = 0x7777; //DUMMY
+
 	unsigned int nroactivos=0;
 	for (int i = 0; i < N; ++i) {
 		h[i] += dh[i];
 		nroactivos += (h[i]>1);
 	}
+
+h[0] = 0xFEF0; //DUMMY xD
 
 	return nroactivos;
 }
@@ -155,7 +161,7 @@ int main(){
 
 	// nro granitos en cada sitio, y su update
 	//~ Manna_Array h = (int*)alloc(SIZE), dh = (int*)alloc(SIZE);
-	Manna_Array h = (Manna_Array) aligned_alloc(64, SIZE), dh = (Manna_Array) aligned_alloc(64, SIZE);
+	Manna_Array h = (Manna_Array) aligned_alloc(128, SIZE), dh = (Manna_Array) aligned_alloc(128, SIZE);
 
 	cout << "estado inicial estable de la pila de arena...";
 	inicializacion(h);
