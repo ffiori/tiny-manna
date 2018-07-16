@@ -80,7 +80,8 @@ void imprimir_array(Manna_Array __restrict__ h)
 
 	// esto dibuja los granitos en cada sitio y los cuenta
 	for(int i = 0; i < N; ++i) {
-		if(h[i]>5) cout << h[i] << " ";
+		//~ if(h[i]>5)
+			cout << h[i] << " ";
 		nrogranitos += h[i];
 		nrogranitos_activos += (h[i]>1);
 	}
@@ -133,11 +134,23 @@ unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_
 	for (i = 0; i < N; ++i) {
 		// si es activo lo descargo aleatoriamente
 		if (h[i] > 1) {
+			/*
 			unsigned int r = rand() << (INTSZ-h[i]);
 			int right = __builtin_popcount(r);
 			
 			dh[(i+1)%N] += right;
 			dh[(i-1+N)%N] += h[i]-right;
+			*/
+			
+			while(h[i]){
+				int qty = min(h[i],32);
+				h[i]-=qty;
+				uniform_int_distribution<int> distribution(0,(1LL<<qty)-1);
+				int right = __builtin_popcount(distribution(generator));
+				//cout<<qty<<" "<<(1LL<<qty)-1<<" "<<distribution(generator)<<" "<<right<<endl;
+				dh[(i+1)%N] += right;
+				dh[(i-1+N)%N] += qty-right;
+			}
 			
 			//~ for (int j = 0; j < h[i]; ++j) {
 				//~ // sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
@@ -199,7 +212,7 @@ int main(){
 	do {
 		activity_out << (activity=descargar(h,dh)) << "\n";
 		#ifdef DEBUG
-		if(t and t%100==0)
+		//~ if(t and t%100==0)
 			imprimir_array(h);
 		#endif
 		++t;
