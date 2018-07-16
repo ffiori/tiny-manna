@@ -122,7 +122,7 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 // DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
 unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_)
 {
-//~ h_[0] = 0x123456; //DUMMY
+//h_[0] = 0x123456; //DUMMY
 
 	Manna_Array __restrict__ h = (Manna_Array) __builtin_assume_aligned(h_,128);
 	Manna_Array __restrict__ dh = (Manna_Array) __builtin_assume_aligned(dh_,128);
@@ -152,24 +152,22 @@ unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_
 				//~ dh[(i-1+N)%N] += qty-right;
 			//~ }
 			
-			int right=0;
-			for (int j = 0; j < h[i]; ++j) {
-				right += randbool();
-			}
-			dh[(i+1)%N] += right;
-			dh[(i-1+N)%N] += h[i]-right;
+			//int right=0;
+			//for (int j = 0; j < h[i]; ++j) right += randbool();
+			//dh[(i+1)%N] += right;
+			//dh[(i-1+N)%N] += h[i]-right;
 			
-			//~ for (int j = 0; j < h[i]; ++j) {
+			for (int j = 0; j < h[i]; ++j) {
 				//~ // sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-				//~ int k = (i+2*randbool()-1+N)%N;
-				//~ ++dh[k];
-			//~ }
+				int k = (i+2*randbool()-1+N)%N;
+				++dh[k];
+			}
 			
 			h[i] = 0;
 		}
 	}
 
-//~ h[0] = 0x7777; //DUMMY
+//h[0] = 0x7777; //DUMMY
 
 	unsigned int nroactivos=0;
 	for (int i = 0; i < N; ++i) {

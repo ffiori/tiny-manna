@@ -2,11 +2,11 @@
 BIN = tiny_manna
 
 # Flags
-CXXFLAGS = -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native #-DDEBUG # -mavx2
+CXXFLAGS = -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native -fopt-info-vec #-DDEBUG # -mavx2
 #CXXFLAGS = -std=c++0x -fast #icc compiling options
 
 # Compilers
-CXX = g++
+CXX = g++-8
 
 # Default N
 N?=1048576
