@@ -24,6 +24,7 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 
 #include <malloc.h>
 //#include "huge-alloc.h"
+#include <x86intrin.h> //SIMD
 
 #define INTSZ 32
 
@@ -131,9 +132,10 @@ unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_
 
 	int i = 0;
 
-	for (i = 0; i < N; ++i) {
-		// si es activo lo descargo aleatoriamente
-		if (h[i] > 1) {
+	//~ for (i = 0; i < N; ++i) {
+		//~ // si es activo lo descargo aleatoriamente
+		//~ if (h[i] > 1) {
+		
 			/*
 			unsigned int r = rand() << (INTSZ-h[i]);
 			int right = __builtin_popcount(r);
@@ -152,19 +154,72 @@ unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_
 				//~ dh[(i-1+N)%N] += qty-right;
 			//~ }
 			
-			//int right=0;
-			//for (int j = 0; j < h[i]; ++j) right += randbool();
-			//dh[(i+1)%N] += right;
-			//dh[(i-1+N)%N] += h[i]-right;
+			//~ h[i]+=0xfef011;
+			/*
+			int right=0;
+			int limit=h[i];
+			for (int j = 0; j < limit; ++j) right += randbool();
+			dh[(i+1)%N] += right;
+			dh[(i-1+N)%N] += h[i]-right;
+			*/
+			//~ for (int j = 0; j < h[i]; ++j) randbool() ? ++dh[(i+1)%N] : ++dh[(i-1+N)%N];
 			
-			for (int j = 0; j < h[i]; ++j) {
+			//~ h[i]+=0xfef02;
+
+			
+			//original
+			//~ for (int j = 0; j < h[i]; ++j) {
 				//~ // sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-				int k = (i+2*randbool()-1+N)%N;
-				++dh[k];
-			}
-			
-			h[i] = 0;
+				//~ int k = (i+2*randbool()-1+N)%N;
+				//~ ++dh[k];
+			//~ }
+			//~ h[i] = 0;
+		//~ }
+	//~ }
+	
+	for (i = N-4; i < N; ++i) {
+		for (int j = 0; j < h[i]; ++j) {
+			int k = (i+2*randbool()-1+N)%N;
+			++dh[k];
 		}
+		h[i] = 0;
+	}
+	
+	for (i = 0; i < 4; ++i) {
+		for (int j = 0; j < h[i]; ++j) {
+			int k = (i+2*randbool()-1+N)%N;
+			++dh[k];
+		}
+		h[i] = 0;
+	}
+	
+	for (; i < N-4; i+=4) {
+		__m128i left = _mm_load_si128((__m128i *) &dh[i-1]);
+		__m128i right = _mm_load_si128((__m128i *) &dh[i+1]);
+		__m128i slots = _mm_load_si128((__m128i *) &h[i]);
+		const __m128i zeroes = _mm_set_epi32(0,0,0,0);
+		const __m128i ones = _mm_set_epi32(1,1,1,1);
+		__m128i slots_gt1 = _mm_cmplt_epi32(ones,slots); //slots greater than 1>1
+		__m128i active_slots;
+		while(active_slots = slots_gt1 & _mm_cmpgt_epi32(slots,zeroes), active_slots[0] | active_slots[1]){ //chequear
+			__m128i randomright = _mm_set_epi32(randbool(),randbool(),randbool(),randbool()); //TODO optimize
+			//const int r = rand();
+			//__m128i randomright = _mm_blend_epi32(ones,zeroes,r); //con un rand de 0 a (1<<4)-1 alcanza, se puede hacer con el de la STL
+			__m128i randomleft = _mm_xor_si128(randomright, ones);
+
+			__m128i addright = _mm_and_si128(randomright, active_slots);
+			__m128i addleft = _mm_and_si128(randomleft, active_slots);
+
+			left = _mm_add_epi32(left, addleft);
+			right = _mm_add_epi32(right, addright);
+
+			slots = _mm_sub_epi32(slots, active_slots & ones); // slots - (active_slots & ones), le resto 1 a cada slot activo
+		}
+		
+		//escribo en dh
+		_mm_store_si128((__m128i *) &dh[i-1],left);
+		_mm_store_si128((__m128i *) &dh[i+1],right);
+		_mm_store_si128((__m128i *) &h[i],slots);
 	}
 
 //h[0] = 0x7777; //DUMMY
