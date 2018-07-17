@@ -26,6 +26,8 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 //#include "huge-alloc.h"
 #include <x86intrin.h> //SIMD
 
+#define printear(leftold) _mm_extract_epi32(leftold,0)<<" "<<_mm_extract_epi32(leftold,1)<<" "<<_mm_extract_epi32(leftold,2)<<" "<<_mm_extract_epi32(leftold,3)
+
 #define INTSZ 32
 
 // number of sites
@@ -193,22 +195,25 @@ unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_
 		h[i] = 0;
 	}
 
+	//~ const __m128i secondhalf = _mm_set_epi32(0,0,0xFFFF,0xFFFF);
 	const __m128i zeroes = _mm_set_epi32(0,0,0,0);
 	const __m128i ones = _mm_set_epi32(1,1,1,1);
+	__m128i left = zeroes; //_mm_loadu_si128((__m128i *) &dh[i-1]);
+	__m128i right = zeroes; //_mm_loadu_si128((__m128i *) &dh[i+1]);
 
 	for (; i < N-4; i+=4) {
-		__m128i left = zeroes; //_mm_loadu_si128((__m128i *) &dh[i-1]);
-		__m128i right = zeroes; //_mm_loadu_si128((__m128i *) &dh[i+1]);
-		__m128i slots = _mm_loadu_si128((__m128i *) &h[i]);
+		__m128i slots = _mm_load_si128((__m128i *) &h[i]);
 		
-		__m128i slots_gt1 = _mm_cmpgt_epi32(slots,ones); //slots greater than 1
+		const __m128i slots_gt1 = _mm_cmpgt_epi32(slots,ones); //slots greater than 1
 		__m128i active_slots;
 		while(active_slots = _mm_and_si128(slots_gt1, _mm_cmpgt_epi32(slots,zeroes)), _mm_movemask_epi8(active_slots)){ //chequear
 			__m128i randomright = _mm_set_epi32(randbool(),randbool(),randbool(),randbool()); //TODO optimize
 			//const int r = rand();
 			//__m128i randomright = _mm_blend_epi32(ones,zeroes,r); //con un rand de 0 a (1<<4)-1 alcanza, se puede hacer con el de la STL
 			__m128i randomleft = _mm_xor_si128(randomright, ones);
-//~ cout<<"randoms: "<<randomright[0]<<" "<<randomright[1]<<" "<<randomleft[0]<<" " <<randomleft[1]<<endl;
+	#ifdef DEBUG
+	cout<<"random left: "<<printear(randomleft)<<". right: "<<printear(randomright)<<endl;
+	#endif
 			__m128i addright = _mm_and_si128(randomright, active_slots);
 			__m128i addleft = _mm_and_si128(randomleft, active_slots);
 
@@ -217,23 +222,38 @@ unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_
 
 			slots = _mm_sub_epi32(slots, _mm_and_si128(active_slots, ones)); // slots - (active_slots & ones), le resto 1 a cada slot activo
 		}
-		//~ cout<<"update l y r: "<<left[0]<<" "<<left[1]<<" "<<right[0]<<" "<<right[1]<<endl;
+#ifdef DEBUG	
+cout<<"update l: "<<printear(left)<<" y r: "<<printear(right)<<endl;
+#endif
+
 		//escribo en dh
-		__m128i mitad = _mm_srli_si128(right,8); //_mm_set_epi32(0,0,_mm_extract_epi32(right,0),_mm_extract_epi32(right,1));
+		__m128i mitad = _mm_srli_si128(right,8);
 		left = _mm_add_epi32(left,mitad);
 		
-		__m128i leftold = _mm_loadu_si128((__m128i *) &dh[i-1]);
-		left = _mm_add_epi32(left,leftold);
+		if(i<=4){ //TODO sacar afuera del loop la primera iteración donde i=4
+			__m128i leftold = _mm_loadu_si128((__m128i *) &dh[i-1]); // siempre en 0 salvo los bordes
+			left = _mm_add_epi32(left,leftold);
+
+			#ifdef DEBUG
+			cout<<"LEO dh :"<<printear(leftold)<<". pero habia "<<dh[i-1]<<" "<<dh[i]<<" "<<dh[i+1]<<" "<<dh[i+2]<<endl;
+			#endif
+		}
+
 		_mm_storeu_si128((__m128i *) &dh[i-1],left);
 		
-		mitad = _mm_slli_si128(right,8); //_mm_set_epi32(0,0,_mm_extract_epi32(right,2),_mm_extract_epi32(right,3));
-		mitad = _mm_srli_si128(mitad,8);
-		__m128i rightold = _mm_loadu_si128((__m128i *) &dh[i+1]);
-		right = _mm_add_epi32(rightold,mitad);
-		_mm_storeu_si128((__m128i *) &dh[i+1],right);
+		//~ mitad = _mm_and_si128(right,secondhalf); //_mm_set_epi32(0,0,_mm_extract_epi32(right,2),_mm_extract_epi32(right,3));
+		//~ __m128i rightold = _mm_loadu_si128((__m128i *) &dh[i+1]);
+		//~ right = _mm_add_epi32(rightold,mitad);
+		//~ _mm_storeu_si128((__m128i *) &dh[i+1],right);
+		left = _mm_slli_si128(right,8);
+		right = zeroes;
 		
-		_mm_storeu_si128((__m128i *) &h[i],slots);
+		_mm_store_si128((__m128i *) &h[i],slots);
 	}
+
+	__m128i leftold = _mm_loadu_si128((__m128i *) &dh[i-1]);
+	left = _mm_add_epi32(left,leftold);
+	_mm_storeu_si128((__m128i *) &dh[i-1],left);
 
 //h[0] = 0x7777; //DUMMY
 
