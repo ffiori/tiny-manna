@@ -63,6 +63,11 @@ static inline bool randbool() {
         return distribution(generator);
 }
 
+static inline bool rand16() {
+        uniform_int_distribution<int> distribution(0,(1<<4)-1);
+        return distribution(generator);
+}
+
 
 // CONDICION INICIAL ---------------------------------------------------------------
 /*
@@ -122,6 +127,9 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 	}
 }
 
+const __m128i zeroes = _mm_set_epi32(0,0,0,0);
+const __m128i ones = _mm_set_epi32(1,1,1,1);
+	
 // DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
 unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_)
 {
@@ -179,14 +187,6 @@ unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_
 		//~ }
 	//~ }
 	
-	for (i = N-4; i < N; ++i) if(h[i] > 1) {
-		for (int j = 0; j < h[i]; ++j) {
-			int k = (i+2*randbool()-1+N)%N;
-			++dh[k];
-		}
-		h[i] = 0;
-	}
-	
 	for (i = 0; i < 4; ++i) if(h[i] > 1) {
 		for (int j = 0; j < h[i]; ++j) {
 			int k = (i+2*randbool()-1+N)%N;
@@ -195,25 +195,32 @@ unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_
 		h[i] = 0;
 	}
 
-	//~ const __m128i secondhalf = _mm_set_epi32(0,0,0xFFFF,0xFFFF);
-	const __m128i zeroes = _mm_set_epi32(0,0,0,0);
-	const __m128i ones = _mm_set_epi32(1,1,1,1);
-	__m128i left = zeroes; //_mm_loadu_si128((__m128i *) &dh[i-1]);
-	__m128i right = zeroes; //_mm_loadu_si128((__m128i *) &dh[i+1]);
+	//~ __m128i left = zeroes;
+	__m128i left = _mm_loadu_si128((__m128i *) &dh[i-1]);
+	__m128i right = zeroes;
 
 	for (; i < N-4; i+=4) {
 		__m128i slots = _mm_load_si128((__m128i *) &h[i]);
-		
 		const __m128i slots_gt1 = _mm_cmpgt_epi32(slots,ones); //slots greater than 1
 		__m128i active_slots;
-		while(active_slots = _mm_and_si128(slots_gt1, _mm_cmpgt_epi32(slots,zeroes)), _mm_movemask_epi8(active_slots)){ //chequear
-			__m128i randomright = _mm_set_epi32(randbool(),randbool(),randbool(),randbool()); //TODO optimize
+		
+		bool activity = false;
+		while(active_slots = _mm_and_si128(slots_gt1, _mm_cmpgt_epi32(slots,zeroes)), _mm_movemask_epi8(active_slots)){ //active_slots[0] or active_slots[1]
+			activity = true;
+			short unsigned r = rand(); //BEST
+			//~ short unsigned r; _rdrand16_step(&r);
+
+			__m128i randomright = _mm_set_epi32(r&1,(r>>1)&1,(r>>2)&1,(r>>3)&1); //TODO optimize // BEST
+			
+			//~ __m128i randomright = _mm_set_epi32(randbool(),randbool(),randbool(),randbool()); //TODO optimize
+			
 			//const int r = rand();
 			//__m128i randomright = _mm_blend_epi32(ones,zeroes,r); //con un rand de 0 a (1<<4)-1 alcanza, se puede hacer con el de la STL
+			
 			__m128i randomleft = _mm_xor_si128(randomright, ones);
-	#ifdef DEBUG
-	cout<<"random left: "<<printear(randomleft)<<". right: "<<printear(randomright)<<endl;
-	#endif
+//~ #ifdef DEBUG
+//~ cout<<"random left: "<<printear(randomleft)<<". right: "<<printear(randomright)<<endl;
+//~ #endif
 			__m128i addright = _mm_and_si128(randomright, active_slots);
 			__m128i addleft = _mm_and_si128(randomleft, active_slots);
 
@@ -222,22 +229,26 @@ unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_
 
 			slots = _mm_sub_epi32(slots, _mm_and_si128(active_slots, ones)); // slots - (active_slots & ones), le resto 1 a cada slot activo
 		}
-#ifdef DEBUG	
-cout<<"update l: "<<printear(left)<<" y r: "<<printear(right)<<endl;
-#endif
+//~ #ifdef DEBUG	
+//~ cout<<"update l: "<<printear(left)<<" y r: "<<printear(right)<<endl;
+//~ #endif
 
 		//escribo en dh
-		__m128i mitad = _mm_srli_si128(right,8);
+		//~ __m128i mitad = _mm_srli_si128(right,8);
+		__m128i mitad = _mm_slli_si128(right,8); //OJO, invertido
 		left = _mm_add_epi32(left,mitad);
 		
-		if(i<=4){ //TODO sacar afuera del loop la primera iteración donde i=4
-			__m128i leftold = _mm_loadu_si128((__m128i *) &dh[i-1]); // siempre en 0 salvo los bordes
-			left = _mm_add_epi32(left,leftold);
-
-			#ifdef DEBUG
-			cout<<"LEO dh :"<<printear(leftold)<<". pero habia "<<dh[i-1]<<" "<<dh[i]<<" "<<dh[i+1]<<" "<<dh[i+2]<<endl;
-			#endif
-		}
+		//~ #ifdef DEBUG
+		//~ cout<<"right vale "<<printear(right)<<endl;
+		//~ cout<<"mitad vale "<<printear(mitad)<<endl;
+		//~ cout<<"left  vale "<<printear(left)<<endl;
+		//~ #endif
+		
+		
+		//~ if(i<=4){ //TODO sacar afuera del loop la primera iteración donde i=4
+			//~ __m128i leftold = _mm_loadu_si128((__m128i *) &dh[i-1]); // siempre en 0 salvo los bordes
+			//~ left = _mm_add_epi32(left,leftold);
+		//~ }
 
 		_mm_storeu_si128((__m128i *) &dh[i-1],left);
 		
@@ -245,15 +256,31 @@ cout<<"update l: "<<printear(left)<<" y r: "<<printear(right)<<endl;
 		//~ __m128i rightold = _mm_loadu_si128((__m128i *) &dh[i+1]);
 		//~ right = _mm_add_epi32(rightold,mitad);
 		//~ _mm_storeu_si128((__m128i *) &dh[i+1],right);
-		left = _mm_slli_si128(right,8);
+		
+		//~ left = _mm_slli_si128(right,8);
+		left = _mm_srli_si128(right,8); //OJO, invertido
 		right = zeroes;
 		
-		_mm_store_si128((__m128i *) &h[i],slots);
+		//~ #ifdef DEBUG
+		//~ cout<<"SLOTS habia "<<h[i]<<" "<<h[i+1]<<" "<<h[i+2]<<" "<<h[i+3]<<endl;
+		//~ cout<<"ahora hay   "<<printear(slots)<<endl;
+		//~ cout<<"y dh vale "<<dh[i-1]<<" "<<dh[i]<<" "<<dh[i+1]<<" "<<dh[i+2]<<endl;
+		//~ #endif
+		
+		if(activity) _mm_store_si128((__m128i *) &h[i],slots);
 	}
 
-	__m128i leftold = _mm_loadu_si128((__m128i *) &dh[i-1]);
-	left = _mm_add_epi32(left,leftold);
+	//~ __m128i leftold = _mm_loadu_si128((__m128i *) &dh[i-1]);
+	//~ left = _mm_add_epi32(left,leftold);
 	_mm_storeu_si128((__m128i *) &dh[i-1],left);
+
+	for (i = N-4; i < N; ++i) if(h[i] > 1) {
+		for (int j = 0; j < h[i]; ++j) {
+			int k = (i+2*randbool()-1+N)%N;
+			++dh[k];
+		}
+		h[i] = 0;
+	}
 
 //h[0] = 0x7777; //DUMMY
 
@@ -274,7 +301,14 @@ int main(){
 	ios::sync_with_stdio(0); cin.tie(0);
 
 	randinit();
-
+/*
+int a[8]={1,2,3,4,5,6,7,8};
+__m128i aver = _mm_loadu_si128((__m128i *)a);
+cout<<printear(aver)<<endl;
+aver = _mm_srli_si128(aver,8);
+cout<<printear(aver)<<endl;
+return 0;
+*/
 	#ifdef DEBUG
 	cout<<"maximo random: "<<RAND_MAX<<endl;
 	#endif
