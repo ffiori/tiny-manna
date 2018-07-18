@@ -28,8 +28,6 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 
 #define printear(leftold) _mm_extract_epi32(leftold,0)<<" "<<_mm_extract_epi32(leftold,1)<<" "<<_mm_extract_epi32(leftold,2)<<" "<<_mm_extract_epi32(leftold,3)
 
-#define INTSZ 32
-
 // number of sites
 //#define N (1024 / 4) //2MB data
 
@@ -63,12 +61,6 @@ static inline bool randbool() {
         return distribution(generator);
 }
 
-static inline bool rand16() {
-        uniform_int_distribution<int> distribution(0,(1<<4)-1);
-        return distribution(generator);
-}
-
-
 // CONDICION INICIAL ---------------------------------------------------------------
 /*
 Para generar una condicion inicial suficientemente uniforme con una densidad
@@ -81,6 +73,7 @@ void inicializacion(Manna_Array __restrict__ h)
 	}
 }
 
+#ifdef DEBUG
 void imprimir_array(Manna_Array __restrict__ h)
 {
 	int nrogranitos=0;
@@ -99,7 +92,7 @@ void imprimir_array(Manna_Array __restrict__ h)
 	cout << "La densidad obtenida es " << nrogranitos*1.0/N;
 	cout << ", mientras que la deseada era " << DENSITY << "\n\n";
 }
-
+#endif
 
 // CONDICION INICIAL ---------------------------------------------------------------
 /*
@@ -129,9 +122,10 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 
 const __m128i zeroes = _mm_set_epi32(0,0,0,0);
 const __m128i ones = _mm_set_epi32(1,1,1,1);
-	
+
+#if 0
 // DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
-unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_)
+unsigned int descargar_two_loops(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_)
 {
 //h_[0] = 0x123456; //DUMMY
 
@@ -294,6 +288,130 @@ unsigned int descargar(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_
 
 	return nroactivos;
 }
+#endif
+
+#define DHSZ 16
+
+#ifdef DEBUG
+void printdh(Manna_Array dh){
+	cout<<"dh[]: ";
+	for(int i=0; i<DHSZ; i++) cout<<dh[i]<<" ";
+	cout<<endl;
+}
+#endif
+
+unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
+{
+	//~ Manna_Array __restrict__ h = (Manna_Array) __builtin_assume_aligned(h_,127);
+	//~ Manna_Array __restrict__ dh = (Manna_Array) __builtin_assume_aligned(dh_,127);
+	
+	unsigned int nroactivos = 0;
+	memset(dh, 0, DHSZ*4);
+
+	int i = 0;
+	
+	for (i = 0; i < 4; ++i) {
+		if(h[i] > 1) {
+			for (int j = 0; j < h[i]; ++j) {
+				int k = (i+2*randbool()-1+DHSZ)%DHSZ;
+				++dh[k];
+			}
+			h[i] = 0;
+		}
+		
+		if(i>1){ //actualizo salvo h[0] y h[N-1]
+			h[i-1] += dh[i-1];
+			nroactivos += (h[i-1]>1);
+		}
+	}
+
+	#ifdef DEBUG
+	printdh(dh);
+	#endif
+
+	__m128i left = _mm_loadu_si128((__m128i *) &dh[i-1]); //i=4
+	__m128i right = zeroes;
+
+	for (; i < N-4; i+=4) {
+		__m128i slots = _mm_load_si128((__m128i *) &h[i]);
+		__m128i slots_gt1 = _mm_cmpgt_epi32(slots,ones); //slots greater than 1
+		__m128i active_slots;
+		
+		bool activity = false;
+		while(active_slots = _mm_and_si128(slots_gt1, _mm_cmpgt_epi32(slots,zeroes)), _mm_movemask_epi8(active_slots)){ //active_slots[0] or active_slots[1]
+			activity = true;
+			short unsigned r = rand(); //BEST
+			__m128i randomright = _mm_set_epi32(r&1,(r>>1)&1,(r>>2)&1,(r>>3)&1); // BEST
+
+			__m128i randomleft = _mm_xor_si128(randomright, ones);
+			__m128i addright = _mm_and_si128(randomright, active_slots);
+			__m128i addleft = _mm_and_si128(randomleft, active_slots);
+
+			left = _mm_add_epi32(left, addleft);
+			right = _mm_add_epi32(right, addright);
+
+			slots = _mm_sub_epi32(slots, _mm_and_si128(active_slots, ones)); // slots - (active_slots & ones), le resto 1 a cada slot activo
+		}
+
+		//escribo en dh
+		__m128i mitad = _mm_slli_si128(right,8); //OJO, invertido
+		__m128i left_to_store = _mm_add_epi32(left,mitad);
+
+		left = _mm_srli_si128(right,8); //OJO, invertido
+		right = zeroes;
+		
+		if(activity) _mm_store_si128((__m128i *) &h[i],slots);
+		
+		//~ _mm_storeu_si128((__m128i *) &dh[i-1],left_to_store);
+		
+		//actualizo
+		slots = _mm_loadu_si128((__m128i *) &h[i-1]);
+		slots = _mm_add_epi32(slots, left_to_store);
+		_mm_storeu_si128((__m128i *) &h[i-1], slots); //TODO se podria poner un if (left_to_store != 0)
+		
+		slots_gt1 = _mm_cmpgt_epi32(slots,ones); //slots greater than 1
+		slots_gt1 = _mm_and_si128(slots_gt1,ones);
+		
+		//~ nroactivos += (slots_gt1[0]&1) + (slots_gt1[0]>>32) + (slots_gt1[1]&1) + (slots_gt1[1]>>32); //slower option
+		
+		slots_gt1 = _mm_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1, a2+a3, b0+b1, b2+b3 (pero a=b=slots_gt1)
+		slots_gt1 = _mm_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, a0+a1+a2+a3, b0+b1+b2+b3
+		nroactivos += _mm_extract_epi32(slots_gt1,0);
+	}
+
+	_mm_storeu_si128((__m128i *) &dh[(i-1)%DHSZ],left);
+
+	#ifdef DEBUG
+	printdh(dh);
+	#endif
+
+	for (i = N-4; i < N; ++i){
+		if(h[i] > 1) {
+			for (int j = 0; j < h[i]; ++j) {
+				int k = (i+2*randbool()-1)%DHSZ;
+				++dh[k];
+			}
+			h[i] = 0;
+		}
+		//actualizo
+		h[i-1] += dh[(i-1)%DHSZ];
+        nroactivos += (h[i-1]>1);
+	}
+	
+	//actualizo N-1
+    h[N-1] += dh[(N-1)%DHSZ];
+    nroactivos += (h[N-1]>1);
+    
+	//actualizo 0
+    h[0] += dh[0];
+    nroactivos += (h[0]>1);
+
+	#ifdef DEBUG
+	printdh(dh);
+	#endif
+
+	return nroactivos;
+}
 
 //===================================================================
 // Lo compilo asi: g++ tiny_manna.cpp -std=c++0x
@@ -301,6 +419,7 @@ int main(){
 	ios::sync_with_stdio(0); cin.tie(0);
 
 	randinit();
+	
 /*
 int a[8]={1,2,3,4,5,6,7,8};
 __m128i aver = _mm_loadu_si128((__m128i *)a);
@@ -315,7 +434,14 @@ return 0;
 
 	// nro granitos en cada sitio, y su update
 	//~ Manna_Array h = (int*)alloc(SIZE), dh = (int*)alloc(SIZE);
-	Manna_Array h = (Manna_Array) aligned_alloc(128, SIZE), dh = (Manna_Array) aligned_alloc(128, SIZE);
+
+	Manna_Array h = (Manna_Array) aligned_alloc(128, SIZE);
+	Manna_Array dh = (Manna_Array) aligned_alloc(128, sizeof(int)*DHSZ);
+
+	//alineo en -1 porque hay más loads/stores en -1. NO MEJORA
+	//~ Manna_Array h = (Manna_Array) aligned_alloc(128, SIZE+4);
+	//~ Manna_Array dh = (Manna_Array) aligned_alloc(128, sizeof(int)*DHSZ+4); //ver de alinear en -1 si conviene porque todos los store/load son así. Lo probé y no mejora
+	//~ h++; dh++;
 
 	cout << "estado inicial estable de la pila de arena...";
 	inicializacion(h);
@@ -341,6 +467,7 @@ return 0;
 		#ifdef DEBUG
 		//~ if(t and t%100==0)
 			imprimir_array(h);
+		//~ if(t==3) return 0;
 		#endif
 		++t;
 	} while(activity > 0 && t < NSTEPS); // si la actividad decae a cero, esto no evoluciona mas...
