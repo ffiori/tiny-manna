@@ -365,18 +365,21 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 		//~ _mm_storeu_si128((__m128i *) &dh[i-1],left_to_store);
 		
 		//actualizo
-		slots = _mm_loadu_si128((__m128i *) &h[i-1]);
-		slots = _mm_add_epi32(slots, left_to_store);
-		_mm_storeu_si128((__m128i *) &h[i-1], slots); //TODO se podria poner un if (left_to_store != 0)
+		if(left_to_store[0] or left_to_store[1]){ //if (left_to_store != 0)
+			slots = _mm_loadu_si128((__m128i *) &h[i-1]);
+			slots = _mm_add_epi32(slots, left_to_store);
+			_mm_storeu_si128((__m128i *) &h[i-1], slots);
 		
-		slots_gt1 = _mm_cmpgt_epi32(slots,ones); //slots greater than 1
-		slots_gt1 = _mm_and_si128(slots_gt1,ones);
 		
-		//~ nroactivos += (slots_gt1[0]&1) + (slots_gt1[0]>>32) + (slots_gt1[1]&1) + (slots_gt1[1]>>32); //slower option
-		
-		slots_gt1 = _mm_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1, a2+a3, b0+b1, b2+b3 (pero a=b=slots_gt1)
-		slots_gt1 = _mm_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, a0+a1+a2+a3, b0+b1+b2+b3
-		nroactivos += _mm_extract_epi32(slots_gt1,0);
+			slots_gt1 = _mm_cmpgt_epi32(slots,ones); //slots greater than 1
+			slots_gt1 = _mm_and_si128(slots_gt1,ones);
+			
+			//~ nroactivos += (slots_gt1[0]&1) + (slots_gt1[0]>>32) + (slots_gt1[1]&1) + (slots_gt1[1]>>32); //slower option
+			
+			slots_gt1 = _mm_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1, a2+a3, b0+b1, b2+b3 (pero a=b=slots_gt1)
+			slots_gt1 = _mm_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, a0+a1+a2+a3, b0+b1+b2+b3
+			nroactivos += _mm_extract_epi32(slots_gt1,0);
+		}
 	}
 
 	_mm_storeu_si128((__m128i *) &dh[(i-1)%DHSZ],left);
