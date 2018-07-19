@@ -254,9 +254,9 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 			slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3 + b0+b1+b2+b3, ...
 			nroactivos += _mm256_extract_epi32(slots_gt1,7);
 			
-			int aver=(slots_gt1[0]&1) + ((slots_gt1[0]>>32)&1) + (slots_gt1[1]&1) + ((slots_gt1[1]>>32)&1) + (slots_gt1[2]&1) + ((slots_gt1[2]>>32)&1) + (slots_gt1[3]&1) + ((slots_gt1[3]>>32)&1);
-			cout<<_mm256_extract_epi32(slots_gt1,7)<<" "<<aver<<endl;
-			assert(aver==_mm256_extract_epi32(slots_gt1,7));
+			//~ int aver=(slots_gt1[0]&1) + ((slots_gt1[0]>>32)&1) + (slots_gt1[1]&1) + ((slots_gt1[1]>>32)&1) + (slots_gt1[2]&1) + ((slots_gt1[2]>>32)&1) + (slots_gt1[3]&1) + ((slots_gt1[3]>>32)&1);
+			//~ cout<<_mm256_extract_epi32(slots_gt1,7)<<" "<<aver<<endl;
+			//~ assert(aver==_mm256_extract_epi32(slots_gt1,7));
 		}
 	}
 
