@@ -22,6 +22,7 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #include <cstdlib>
 #include <random>
 
+#include <cassert>
 #include <malloc.h>
 //#include "huge-alloc.h"
 #include <x86intrin.h> //SIMD
@@ -141,173 +142,6 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 	}
 }
 
-#if 0
-// DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
-unsigned int descargar_two_loops(Manna_Array __restrict__ h_, Manna_Array __restrict__ dh_)
-{
-//h_[0] = 0x123456; //DUMMY
-
-	Manna_Array __restrict__ h = (Manna_Array) __builtin_assume_aligned(h_,128);
-	Manna_Array __restrict__ dh = (Manna_Array) __builtin_assume_aligned(dh_,128);
-
-	memset(dh, 0, SIZE);
-
-	int i = 0;
-
-	//~ for (i = 0; i < N; ++i) {
-		//~ // si es activo lo descargo aleatoriamente
-		//~ if (h[i] > 1) {
-		
-			/*
-			unsigned int r = rand() << (INTSZ-h[i]);
-			int right = __builtin_popcount(r);
-			
-			dh[(i+1)%N] += right;
-			dh[(i-1+N)%N] += h[i]-right;
-			*/
-			
-			//~ while(h[i]){
-				//~ int qty = min(h[i],32);
-				//~ h[i]-=qty;
-				//~ uniform_int_distribution<int> distribution(0,(1LL<<qty)-1);
-				//~ int right = __builtin_popcount(distribution(generator));
-				//~ //cout<<qty<<" "<<(1LL<<qty)-1<<" "<<distribution(generator)<<" "<<right<<endl;
-				//~ dh[(i+1)%N] += right;
-				//~ dh[(i-1+N)%N] += qty-right;
-			//~ }
-			
-			//~ h[i]+=0xfef011;
-			/*
-			int right=0;
-			int limit=h[i];
-			for (int j = 0; j < limit; ++j) right += randbool();
-			dh[(i+1)%N] += right;
-			dh[(i-1+N)%N] += h[i]-right;
-			*/
-			//~ for (int j = 0; j < h[i]; ++j) randbool() ? ++dh[(i+1)%N] : ++dh[(i-1+N)%N];
-			
-			//~ h[i]+=0xfef02;
-
-			
-			//original
-			//~ for (int j = 0; j < h[i]; ++j) {
-				//~ // sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-				//~ int k = (i+2*randbool()-1+N)%N;
-				//~ ++dh[k];
-			//~ }
-			//~ h[i] = 0;
-		//~ }
-	//~ }
-	
-	for (i = 0; i < 4; ++i) if(h[i] > 1) {
-		for (int j = 0; j < h[i]; ++j) {
-			int k = (i+2*randbool()-1+N)%N;
-			++dh[k];
-		}
-		h[i] = 0;
-	}
-
-	//~ __m128i left = zeroes;
-	__m128i left = _mm_loadu_si128((__m128i *) &dh[i-1]);
-	__m128i right = zeroes;
-
-	for (; i < N-4; i+=4) {
-		__m128i slots = _mm_load_si128((__m128i *) &h[i]);
-		const __m128i slots_gt1 = _mm_cmpgt_epi32(slots,ones); //slots greater than 1
-		__m128i active_slots;
-		
-		bool activity = false;
-		while(active_slots = _mm_and_si128(slots_gt1, _mm_cmpgt_epi32(slots,zeroes)), _mm_movemask_epi8(active_slots)){ //active_slots[0] or active_slots[1]
-			activity = true;
-			short unsigned r = rand(); //BEST
-			//~ short unsigned r; _rdrand16_step(&r);
-
-			__m128i randomright = _mm_set_epi32(r&1,(r>>1)&1,(r>>2)&1,(r>>3)&1); //TODO optimize // BEST
-			
-			//~ __m128i randomright = _mm_set_epi32(randbool(),randbool(),randbool(),randbool()); //TODO optimize
-			
-			//const int r = rand();
-			//__m128i randomright = _mm_blend_epi32(ones,zeroes,r); //con un rand de 0 a (1<<4)-1 alcanza, se puede hacer con el de la STL
-			
-			__m128i randomleft = _mm_xor_si128(randomright, ones);
-//~ #ifdef DEBUG
-//~ cout<<"random left: "<<printear(randomleft)<<". right: "<<printear(randomright)<<endl;
-//~ #endif
-			__m128i addright = _mm_and_si128(randomright, active_slots);
-			__m128i addleft = _mm_and_si128(randomleft, active_slots);
-
-			left = _mm_add_epi32(left, addleft);
-			right = _mm_add_epi32(right, addright);
-
-			slots = _mm_sub_epi32(slots, _mm_and_si128(active_slots, ones)); // slots - (active_slots & ones), le resto 1 a cada slot activo
-		}
-//~ #ifdef DEBUG	
-//~ cout<<"update l: "<<printear(left)<<" y r: "<<printear(right)<<endl;
-//~ #endif
-
-		//escribo en dh
-		//~ __m128i mitad = _mm_srli_si128(right,8);
-		__m128i mitad = _mm_slli_si128(right,8); //OJO, invertido
-		left = _mm_add_epi32(left,mitad);
-		
-		//~ #ifdef DEBUG
-		//~ cout<<"right vale "<<printear(right)<<endl;
-		//~ cout<<"mitad vale "<<printear(mitad)<<endl;
-		//~ cout<<"left  vale "<<printear(left)<<endl;
-		//~ #endif
-		
-		
-		//~ if(i<=4){ //TODO sacar afuera del loop la primera iteración donde i=4
-			//~ __m128i leftold = _mm_loadu_si128((__m128i *) &dh[i-1]); // siempre en 0 salvo los bordes
-			//~ left = _mm_add_epi32(left,leftold);
-		//~ }
-
-		_mm_storeu_si128((__m128i *) &dh[i-1],left);
-		
-		//~ mitad = _mm_and_si128(right,secondhalf); //_mm_set_epi32(0,0,_mm_extract_epi32(right,2),_mm_extract_epi32(right,3));
-		//~ __m128i rightold = _mm_loadu_si128((__m128i *) &dh[i+1]);
-		//~ right = _mm_add_epi32(rightold,mitad);
-		//~ _mm_storeu_si128((__m128i *) &dh[i+1],right);
-		
-		//~ left = _mm_slli_si128(right,8);
-		left = _mm_srli_si128(right,8); //OJO, invertido
-		right = zeroes;
-		
-		//~ #ifdef DEBUG
-		//~ cout<<"SLOTS habia "<<h[i]<<" "<<h[i+1]<<" "<<h[i+2]<<" "<<h[i+3]<<endl;
-		//~ cout<<"ahora hay   "<<printear(slots)<<endl;
-		//~ cout<<"y dh vale "<<dh[i-1]<<" "<<dh[i]<<" "<<dh[i+1]<<" "<<dh[i+2]<<endl;
-		//~ #endif
-		
-		if(activity) _mm_store_si128((__m128i *) &h[i],slots);
-	}
-
-	//~ __m128i leftold = _mm_loadu_si128((__m128i *) &dh[i-1]);
-	//~ left = _mm_add_epi32(left,leftold);
-	_mm_storeu_si128((__m128i *) &dh[i-1],left);
-
-	for (i = N-4; i < N; ++i) if(h[i] > 1) {
-		for (int j = 0; j < h[i]; ++j) {
-			int k = (i+2*randbool()-1+N)%N;
-			++dh[k];
-		}
-		h[i] = 0;
-	}
-
-//h[0] = 0x7777; //DUMMY
-
-	unsigned int nroactivos=0;
-	for (int i = 0; i < N; ++i) {
-		h[i] += dh[i];
-		nroactivos += (h[i]>1);
-	}
-
-//~ h[0] = 0xFEF0; //DUMMY xD
-
-	return nroactivos;
-}
-#endif
-
 #define DHSZ 32
 
 #ifdef DEBUG
@@ -315,127 +149,6 @@ void printdh(Manna_Array dh){
 	cout<<"dh[]: ";
 	for(int i=0; i<DHSZ; i++) cout<<dh[i]<<" ";
 	cout<<endl;
-}
-#endif
-
-#if 0
-const __m128i zeroes = _mm_set_epi32(0,0,0,0);
-const __m128i ones = _mm_set_epi32(1,1,1,1);
-
-unsigned int descargar128(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
-{
-	//~ Manna_Array __restrict__ h = (Manna_Array) __builtin_assume_aligned(h_,127);
-	//~ Manna_Array __restrict__ dh = (Manna_Array) __builtin_assume_aligned(dh_,127);
-	
-	unsigned int nroactivos = 0;
-	memset(dh, 0, DHSZ*4);
-
-	int i = 0;
-	
-	for (i = 0; i < 4; ++i) {
-		if(h[i] > 1) {
-			for (int j = 0; j < h[i]; ++j) {
-				int k = (i+2*randbool()-1+DHSZ)%DHSZ;
-				++dh[k];
-			}
-			h[i] = 0;
-		}
-		
-		if(i>1){ //actualizo salvo h[0] y h[N-1]
-			h[i-1] += dh[i-1];
-			nroactivos += (h[i-1]>1);
-		}
-	}
-
-	#ifdef DEBUG
-	printdh(dh);
-	#endif
-
-	__m128i left = _mm_loadu_si128((__m128i *) &dh[i-1]); //i=4
-	__m128i right = zeroes;
-
-	for (; i < N-4; i+=4) {
-		__m128i slots = _mm_load_si128((__m128i *) &h[i]);
-		__m128i slots_gt1 = _mm_cmpgt_epi32(slots,ones); //slots greater than 1
-		__m128i active_slots;
-		
-		bool activity = false;
-		while(active_slots = _mm_and_si128(slots_gt1, _mm_cmpgt_epi32(slots,zeroes)), _mm_movemask_epi8(active_slots)){ //active_slots[0] or active_slots[1]
-			activity = true;
-			short unsigned r = rand(); //BEST
-			__m128i randomright = _mm_set_epi32(r&1,(r>>1)&1,(r>>2)&1,(r>>3)&1); // BEST
-
-			__m128i randomleft = _mm_xor_si128(randomright, ones);
-			__m128i addright = _mm_and_si128(randomright, active_slots);
-			__m128i addleft = _mm_and_si128(randomleft, active_slots);
-
-			left = _mm_add_epi32(left, addleft);
-			right = _mm_add_epi32(right, addright);
-
-			slots = _mm_sub_epi32(slots, _mm_and_si128(active_slots, ones)); // slots - (active_slots & ones), le resto 1 a cada slot activo
-		}
-
-		//escribo en dh
-		__m128i mitad = _mm_slli_si128(right,8); //OJO, invertido
-		__m128i left_to_store = _mm_add_epi32(left,mitad);
-
-		left = _mm_srli_si128(right,8); //OJO, invertido
-		right = zeroes;
-		
-		if(activity) _mm_store_si128((__m128i *) &h[i],slots);
-		
-		//~ _mm_storeu_si128((__m128i *) &dh[i-1],left_to_store);
-		
-		//actualizo
-		if(left_to_store[0] or left_to_store[1]){ //if (left_to_store != 0)
-			slots = _mm_loadu_si128((__m128i *) &h[i-1]);
-			slots = _mm_add_epi32(slots, left_to_store);
-			_mm_storeu_si128((__m128i *) &h[i-1], slots);
-		
-		
-			slots_gt1 = _mm_cmpgt_epi32(slots,ones); //slots greater than 1
-			slots_gt1 = _mm_and_si128(slots_gt1,ones);
-			
-			//~ nroactivos += (slots_gt1[0]&1) + (slots_gt1[0]>>32) + (slots_gt1[1]&1) + (slots_gt1[1]>>32); //slower option
-			
-			slots_gt1 = _mm_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1, a2+a3, b0+b1, b2+b3 (pero a=b=slots_gt1)
-			slots_gt1 = _mm_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, a0+a1+a2+a3, b0+b1+b2+b3
-			nroactivos += _mm_extract_epi32(slots_gt1,0);
-		}
-	}
-
-	_mm_storeu_si128((__m128i *) &dh[(i-1)%DHSZ],left);
-
-	#ifdef DEBUG
-	printdh(dh);
-	#endif
-
-	for (i = N-4; i < N; ++i){
-		if(h[i] > 1) {
-			for (int j = 0; j < h[i]; ++j) {
-				int k = (i+2*randbool()-1)%DHSZ;
-				++dh[k];
-			}
-			h[i] = 0;
-		}
-		//actualizo
-		h[i-1] += dh[(i-1)%DHSZ];
-        nroactivos += (h[i-1]>1);
-	}
-	
-	//actualizo N-1
-    h[N-1] += dh[(N-1)%DHSZ];
-    nroactivos += (h[N-1]>1);
-    
-	//actualizo 0
-    h[0] += dh[0];
-    nroactivos += (h[0]>1);
-
-	#ifdef DEBUG
-	printdh(dh);
-	#endif
-
-	return nroactivos;
 }
 #endif
 
@@ -540,6 +253,10 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 			slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, .....
 			slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3 + b0+b1+b2+b3, ...
 			nroactivos += _mm256_extract_epi32(slots_gt1,7);
+			
+			int aver=(slots_gt1[0]&1) + ((slots_gt1[0]>>32)&1) + (slots_gt1[1]&1) + ((slots_gt1[1]>>32)&1) + (slots_gt1[2]&1) + ((slots_gt1[2]>>32)&1) + (slots_gt1[3]&1) + ((slots_gt1[3]>>32)&1);
+			cout<<_mm256_extract_epi32(slots_gt1,7)<<" "<<aver<<endl;
+			assert(aver==_mm256_extract_epi32(slots_gt1,7));
 		}
 	}
 
