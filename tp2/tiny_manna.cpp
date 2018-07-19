@@ -22,9 +22,7 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #include <cstdlib>
 #include <random>
 
-#include <cassert>
-#include <malloc.h>
-//#include "huge-alloc.h"
+#include <malloc.h> //aligned_alloc
 #include <x86intrin.h> //SIMD
 
 #define printear(leftold) _mm_extract_epi32(leftold,0)<<" "<<_mm_extract_epi32(leftold,1)<<" "<<_mm_extract_epi32(leftold,2)<<" "<<_mm_extract_epi32(leftold,3)
@@ -232,8 +230,6 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 		
 		if(activity) _mm256_store_si256((__m256i *) &h[i],slots);
 		
-		//~ _mm256_storeu_si256((__m256i *) &dh[i-1],left_to_store);
-		
 		//actualizo
 		if(left_to_store[0] or left_to_store[1] or left_to_store[2] or left_to_store[3]){ //if (left_to_store != 0)
 			slots = _mm256_loadu_si256((__m256i *) &h[i-1]);
@@ -249,14 +245,11 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 			
 			//~ nroactivos += (slots_gt1[0]&1) + ((slots_gt1[0]>>32)&1) + (slots_gt1[1]&1) + ((slots_gt1[1]>>32)&1) + (slots_gt1[2]&1) + ((slots_gt1[2]>>32)&1) + (slots_gt1[3]&1) + ((slots_gt1[3]>>32)&1); //slower option
 			
+			//sumo todos los int32 de slots_gt1
 			slots_gt1 = _mm256_hadd_epi32(slots_gt1,shift_half_left(slots_gt1)); // = a0+a1, a2+a3, b0+b1, b2+b3, a4+a5, a6+a7, b4+b5, b6+b7 (pero a=b=slots_gt1) = a0+a1, a2+a3, a0+a1, a2+a3, a4+a5, a6+a7, a4+a5, a6+a7
 			slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, .....
 			slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3 + b0+b1+b2+b3, ...
-			nroactivos += _mm256_extract_epi32(slots_gt1,7);
-			
-			//~ int aver=(slots_gt1[0]&1) + ((slots_gt1[0]>>32)&1) + (slots_gt1[1]&1) + ((slots_gt1[1]>>32)&1) + (slots_gt1[2]&1) + ((slots_gt1[2]>>32)&1) + (slots_gt1[3]&1) + ((slots_gt1[3]>>32)&1);
-			//~ cout<<_mm256_extract_epi32(slots_gt1,7)<<" "<<aver<<endl;
-			//~ assert(aver==_mm256_extract_epi32(slots_gt1,7));
+			nroactivos += _mm256_extract_epi32(slots_gt1,0);
 		}
 	}
 
@@ -329,6 +322,11 @@ aver1 = shift64right(aver);
 cout<<printear256(aver1)<<endl;
 aver1 = shift192left(aver);
 cout<<printear256(aver1)<<endl;
+
+__m256i slots_gt1 = _mm256_hadd_epi32(aver,shift_half_left(aver)); // = a0+a1, a2+a3, b0+b1, b2+b3, a4+a5, a6+a7, b4+b5, b6+b7 (pero a=b=slots_gt1) = a0+a1, a2+a3, a0+a1, a2+a3, a4+a5, a6+a7, a4+a5, a6+a7
+slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, .....
+slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3 + b0+b1+b2+b3, ...
+cout<<printear256(slots_gt1)<<endl;
 
 return 0;
 */
