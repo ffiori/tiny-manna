@@ -251,12 +251,12 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 			slots_gt1 = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
 			slots_gt1 = _mm256_and_si256(slots_gt1,ones);
 			
-			//~ nroactivos += (slots_gt1[0]&1) + ((slots_gt1[0]>>32)&1) + (slots_gt1[1]&1) + ((slots_gt1[1]>>32)&1) + (slots_gt1[2]&1) + ((slots_gt1[2]>>32)&1) + (slots_gt1[3]&1) + ((slots_gt1[3]>>32)&1); //slower option
-			
-			slots_gt1 = _mm256_hadd_epi32(slots_gt1,shift_half_left(slots_gt1)); // = a0+a1, a2+a3, b0+b1, b2+b3, a4+a5, a6+a7, b4+b5, b6+b7 (pero a=b=slots_gt1) = a0+a1, a2+a3, a0+a1, a2+a3, a4+a5, a6+a7, a4+a5, a6+a7
+			slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1, a2+a3, b0+b1, b2+b3, a4+a5, a6+a7, b4+b5, b6+b7 (pero a=b=slots_gt1) = a0+a1, a2+a3, a0+a1, a2+a3, a4+a5, a6+a7, a4+a5, a6+a7
 			slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, .....
-			slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3 + b0+b1+b2+b3, ...
-			nroactivos += _mm256_extract_epi32(slots_gt1,0);
+			nroactivos += _mm256_extract_epi32(slots_gt1,0) + _mm256_extract_epi32(slots_gt1,7);
+			
+			//~ nroactivos += _mm256_extract_epi32(slots_gt1,0) + _mm256_extract_epi32(slots_gt1,1) + _mm256_extract_epi32(slots_gt1,2)+ _mm256_extract_epi32(slots_gt1,3)+ _mm256_extract_epi32(slots_gt1,4)+ _mm256_extract_epi32(slots_gt1,5) + _mm256_extract_epi32(slots_gt1,6) + _mm256_extract_epi32(slots_gt1,7);
+			//~ nroactivos += _popcnt64(slots_gt1[0]) + _popcnt64(slots_gt1[1]) + _popcnt64(slots_gt1[2]) + _popcnt64(slots_gt1[3]);
 		}
 	}
 
@@ -335,7 +335,11 @@ slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b
 slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3 + b0+b1+b2+b3, ...
 cout<<printear256(slots_gt1)<<endl;
 
-
+slots_gt1 = aver; // = a0+a1, a2+a3, b0+b1, b2+b3, a4+a5, a6+a7, b4+b5, b6+b7 (pero a=b=slots_gt1) = a0+a1, a2+a3, a0+a1, a2+a3, a4+a5, a6+a7, a4+a5, a6+a7
+slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, .....
+slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3 + b0+b1+b2+b3, ...
+cout<<printear256(slots_gt1)<<endl;
+cout<<_mm256_extract_epi32(slots_gt1,0) + _mm256_extract_epi32(slots_gt1,7)<<endl;
 
 return 0;
 */
