@@ -48,8 +48,8 @@ typedef int * Manna_Array;
 
 static default_random_engine generator;
 
-const __m256i zeroes = _mm256_set_epi32(0,0,0,0,0,0,0,0);
-const __m128i zeroes128 = _mm_set_epi32(0,0,0,0);
+const __m256i zeroes = _mm256_setzero_si256();
+const __m128i zeroes128 = _mm_setzero_si128();
 const __m256i ones = _mm256_set_epi32(1,1,1,1,1,1,1,1);
 
 #ifndef SEED
@@ -239,7 +239,7 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 		if(activity) _mm256_store_si256((__m256i *) &h[i],slots);
 		
 		//actualizo
-		if(left_to_store[0] or left_to_store[1] or left_to_store[2] or left_to_store[3]){ //if (left_to_store != 0)
+		if(!_mm256_testz_si256(left_to_store,left_to_store)){ //if (left_to_store != 0)
 			slots = _mm256_loadu_si256((__m256i *) &h[i-1]);
 			slots = _mm256_add_epi32(slots, left_to_store);
 			_mm256_storeu_si256((__m256i *) &h[i-1], slots);
