@@ -69,6 +69,11 @@ static inline bool randbool() {
         return distribution(generator);
 }
 
+static inline unsigned char randchar() {
+        uniform_int_distribution<unsigned char> distribution(0,255);
+        return distribution(generator);
+}
+
 static inline __m256i shift_half_right(__m256i input){
 	return _mm256_set_m128i(_mm256_extracti128_si256(input,0), zeroes128);
 }
@@ -201,7 +206,7 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 			//~ __m256i randomright = _mm256_set_epi32(r,r>>1,r>>2,r>>3,r>>4,r>>5,r>>6,r>>7); // BEST
 			//~ randomright = _mm256_and_si256(randomright, ones);
 			
-			unsigned char r = rand(); //BEST
+			unsigned char r = randchar(); //BEST
 			__m256i randomright = MASK[r]; // BEST
 			
 			__m256i randomleft = _mm256_xor_si256(randomright, ones);
