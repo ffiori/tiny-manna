@@ -47,7 +47,8 @@ typedef int * Manna_Array;
 
 static default_random_engine generator;
 
-#define zeroes (_mm256_setzero_si256())
+//~ #define zeroes (_mm256_setzero_si256())
+const __m256i zeroes = _mm256_setzero_si256();
 const __m128i zeroes128 = _mm_setzero_si128();
 const __m256i ones = _mm256_set1_epi32(1); //broadcasts 1
 
@@ -62,13 +63,13 @@ void randinit() {
 }
 
 static inline bool randbool() {
-        uniform_int_distribution<int> distribution(0,1);
-        return distribution(generator);
+	uniform_int_distribution<int> distribution(0,1);
+	return distribution(generator);
 }
 
 static inline unsigned char randchar() {
-        uniform_int_distribution<unsigned char> distribution(0,255);
-        return distribution(generator);
+	uniform_int_distribution<unsigned char> distribution(0,255);
+	return distribution(generator);
 }
 
 static inline __m256i shift_half_right(__m256i input){ //not used
@@ -83,11 +84,11 @@ const __m256i maskfff0 = _mm256_set_epi64x(-1,-1,-1,0);
 const __m256i mask000f = _mm256_set_epi64x(0,0,0,-1);
 
 static inline __m256i shift192left(__m256i input){
-	return _mm256_and_si256(mask000f, _mm256_permute4x64_epi64(input, 3));
+	return _mm256_and_si256(mask000f, _mm256_permute4x64_epi64(input,_MM_SHUFFLE(2,1,0,3)));
 }
 
 static inline __m256i shift64right(__m256i input){
-	return _mm256_and_si256(maskfff0, _mm256_permute4x64_epi64(input, (2<<6) + (1<<4)));
+	return _mm256_and_si256(maskfff0, _mm256_permute4x64_epi64(input,_MM_SHUFFLE(2,1,0,3)));
 }
 
 // CONDICION INICIAL ---------------------------------------------------------------
@@ -340,9 +341,10 @@ input = _mm256_permute4x64_epi64(aver, (1<<4)+(2<<2)+3);
 cout<<printear256(input)<<endl;
 
 input = _mm256_permute4x64_epi64(aver, (2<<6) + (1<<4));
+input = _mm256_permute4x64_epi64(aver,_MM_SHUFFLE(2,1,0,3));
 cout<<printear256(input)<<endl;
 
-input = _mm256_and_si256(mask192, _mm256_permute4x64_epi64(aver, (3<<6)+(2<<4)+(1<<2)));
+input = shift192left(aver);
 cout<<printear256(input)<<endl;
 input = shift64right(aver);
 cout<<printear256(input)<<endl;
