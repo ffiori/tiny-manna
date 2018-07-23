@@ -47,7 +47,7 @@ typedef int * Manna_Array;
 
 static default_random_engine generator;
 
-const __m256i zeroes = _mm256_setzero_si256();
+#define zeroes (_mm256_setzero_si256())
 const __m128i zeroes128 = _mm_setzero_si128();
 const __m256i ones = _mm256_set1_epi32(1); //broadcasts 1
 
