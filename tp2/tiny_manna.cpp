@@ -32,7 +32,6 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 
 // number of sites
 //#define N (1024 / 4) //2MB data
-
 #define SIZE (N * 4)
 
 //~ #define DENSITY 0.8924
@@ -50,18 +49,16 @@ static default_random_engine generator;
 
 const __m256i zeroes = _mm256_setzero_si256();
 const __m128i zeroes128 = _mm_setzero_si128();
-const __m256i ones = _mm256_set_epi32(1,1,1,1,1,1,1,1);
+const __m256i ones = _mm256_set1_epi32(1); //broadcasts 1
 
 #ifndef SEED
 #define SEED 0
 #endif
 
-//~ #define rand() (-1)
-
 void randinit() {
 	random_device rd;
 	generator = default_random_engine(SEED ? SEED : rd());
-	srand(SEED ? SEED : time(NULL));
+	//~ srand(SEED ? SEED : time(NULL));
 }
 
 static inline bool randbool() {
@@ -74,20 +71,23 @@ static inline unsigned char randchar() {
         return distribution(generator);
 }
 
-static inline __m256i shift_half_right(__m256i input){
+static inline __m256i shift_half_right(__m256i input){ //not used
 	return _mm256_set_m128i(_mm256_extracti128_si256(input,0), zeroes128);
 }
 
-static inline __m256i shift_half_left(__m256i input){
+static inline __m256i shift_half_left(__m256i input){ //not used
 	return _mm256_set_m128i(zeroes128, _mm256_extracti128_si256(input,1));
 }
 
+const __m256i maskfff0 = _mm256_set_epi64x(-1,-1,-1,0);
+const __m256i mask000f = _mm256_set_epi64x(0,0,0,-1);
+
 static inline __m256i shift192left(__m256i input){
-	return _mm256_set_epi64x(0,0,0,_mm256_extract_epi64(input,3));
+	return _mm256_and_si256(mask000f, _mm256_permute4x64_epi64(input, 3));
 }
 
 static inline __m256i shift64right(__m256i input){
-	return _mm256_set_epi64x(_mm256_extract_epi64(input,2), _mm256_extract_epi64(input,1), _mm256_extract_epi64(input,0), 0);
+	return _mm256_and_si256(maskfff0, _mm256_permute4x64_epi64(input, (2<<6) + (1<<4)));
 }
 
 // CONDICION INICIAL ---------------------------------------------------------------
@@ -201,13 +201,8 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 		bool activity = false;
 		while(active_slots = _mm256_and_si256(slots_gt1, _mm256_cmpgt_epi32(slots,zeroes)), _mm256_movemask_epi8(active_slots)){ //active_slots[0] or active_slots[1] or...
 			activity = true;
-			
-			//~ short unsigned r = rand(); //BEST
-			//~ __m256i randomright = _mm256_set_epi32(r,r>>1,r>>2,r>>3,r>>4,r>>5,r>>6,r>>7); // BEST
-			//~ randomright = _mm256_and_si256(randomright, ones);
-			
-			unsigned char r = randchar(); //BEST
-			__m256i randomright = MASK[r]; // BEST
+			unsigned char r = randchar();
+			__m256i randomright = MASK[r];
 			
 			__m256i randomleft = _mm256_xor_si256(randomright, ones);
 			
@@ -233,7 +228,6 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 		__m256i left_to_store = _mm256_add_epi32(left,solapado); //los junto para storearlos ahora
 
 		#ifdef DEBUG
-		cout<<"right vale "<<printear256(right)<<endl;
 		cout<<"solapavale "<<printear256(solapado)<<endl;
 		cout<<"leftS vale "<<printear256(left_to_store)<<endl;
 		#endif
@@ -303,18 +297,18 @@ int main(){
 int a[8]={1,2,3,4,5,6,7,8};
 __m256i aver = _mm256_loadu_si256((__m256i *)a);
 cout<<printear256(aver)<<endl;
-__m256i aver1 = _mm256_set_m128i(_mm256_extracti128_si256(aver,0), zeroes128);
-cout<<printear256(aver1)<<endl;
-aver1 = _mm256_set_m128i(_mm256_extracti128_si256(aver,1), zeroes128);
-cout<<printear256(aver1)<<endl;
-aver1 = _mm256_set_m128i(zeroes128, _mm256_extracti128_si256(aver,0));
-cout<<printear256(aver1)<<endl;
-aver1 = _mm256_set_m128i(zeroes128, _mm256_extracti128_si256(aver,1));
-cout<<printear256(aver1)<<endl;
+//~ __m256i aver1 = _mm256_set_m128i(_mm256_extracti128_si256(aver,0), zeroes128);
+//~ cout<<printear256(aver1)<<endl;
+//~ aver1 = _mm256_set_m128i(_mm256_extracti128_si256(aver,1), zeroes128);
+//~ cout<<printear256(aver1)<<endl;
+//~ aver1 = _mm256_set_m128i(zeroes128, _mm256_extracti128_si256(aver,0));
+//~ cout<<printear256(aver1)<<endl;
+//~ aver1 = _mm256_set_m128i(zeroes128, _mm256_extracti128_si256(aver,1));
+//~ cout<<printear256(aver1)<<endl;
 
-_mm256_storeu_si256((__m256i *)a, aver1);
-for(int i=0;i<8;i++)cout<<a[i]<<" ";
-cout<<endl;
+//~ _mm256_storeu_si256((__m256i *)a, aver1);
+//~ for(int i=0;i<8;i++)cout<<a[i]<<" ";
+//~ cout<<endl;
 
 //~ 1 2 3 4 5 6 7 8
 //~ 0 0 0 0 1 2 3 4
@@ -323,22 +317,35 @@ cout<<endl;
 //~ 5 6 7 8 0 0 0 0
 //~ 5 6 7 8 0 0 0 0 
 
-aver1 = shift64right(aver);
-cout<<printear256(aver1)<<endl;
-aver1 = shift192left(aver);
-cout<<printear256(aver1)<<endl;
+//~ __m256i slots_gt1 = _mm256_hadd_epi32(aver,shift_half_left(aver)); // = a0+a1, a2+a3, b0+b1, b2+b3, a4+a5, a6+a7, b4+b5, b6+b7 (pero a=b=slots_gt1) = a0+a1, a2+a3, a0+a1, a2+a3, a4+a5, a6+a7, a4+a5, a6+a7
+//~ slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, .....
+//~ slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3 + b0+b1+b2+b3, ...
+//~ cout<<printear256(slots_gt1)<<endl;
 
-__m256i slots_gt1 = _mm256_hadd_epi32(aver,shift_half_left(aver)); // = a0+a1, a2+a3, b0+b1, b2+b3, a4+a5, a6+a7, b4+b5, b6+b7 (pero a=b=slots_gt1) = a0+a1, a2+a3, a0+a1, a2+a3, a4+a5, a6+a7, a4+a5, a6+a7
-slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, .....
-slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3 + b0+b1+b2+b3, ...
-cout<<printear256(slots_gt1)<<endl;
+//~ slots_gt1 = aver; // = a0+a1, a2+a3, b0+b1, b2+b3, a4+a5, a6+a7, b4+b5, b6+b7 (pero a=b=slots_gt1) = a0+a1, a2+a3, a0+a1, a2+a3, a4+a5, a6+a7, a4+a5, a6+a7
+//~ slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, .....
+//~ slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3 + b0+b1+b2+b3, ...
+//~ cout<<printear256(slots_gt1)<<endl;
+//~ cout<<_mm256_extract_epi32(slots_gt1,0) + _mm256_extract_epi32(slots_gt1,7)<<endl;
 
-slots_gt1 = aver; // = a0+a1, a2+a3, b0+b1, b2+b3, a4+a5, a6+a7, b4+b5, b6+b7 (pero a=b=slots_gt1) = a0+a1, a2+a3, a0+a1, a2+a3, a4+a5, a6+a7, a4+a5, a6+a7
-slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, .....
-slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3 + b0+b1+b2+b3, ...
-cout<<printear256(slots_gt1)<<endl;
-cout<<_mm256_extract_epi32(slots_gt1,0) + _mm256_extract_epi32(slots_gt1,7)<<endl;
+__m256i input = aver;
+cout<<printear256(input)<<endl;
+input = _mm256_permute4x64_epi64(aver, (3<<6)+(2<<4)+(1<<2));
+cout<<printear256(input)<<endl;
+input = _mm256_permute4x64_epi64(aver, (1<<6)+(2<<4)+(3<<2));
+cout<<printear256(input)<<endl;
+input = _mm256_permute4x64_epi64(aver, (3<<4)+(2<<2)+1);
+cout<<printear256(input)<<endl;
+input = _mm256_permute4x64_epi64(aver, (1<<4)+(2<<2)+3);
+cout<<printear256(input)<<endl;
 
+input = _mm256_permute4x64_epi64(aver, (2<<6) + (1<<4));
+cout<<printear256(input)<<endl;
+
+input = _mm256_and_si256(mask192, _mm256_permute4x64_epi64(aver, (3<<6)+(2<<4)+(1<<2)));
+cout<<printear256(input)<<endl;
+input = shift64right(aver);
+cout<<printear256(input)<<endl;
 return 0;
 */
 
@@ -351,11 +358,6 @@ return 0;
 
 	Manna_Array h = (Manna_Array) aligned_alloc(128, SIZE);
 	Manna_Array dh = (Manna_Array) aligned_alloc(128, sizeof(int)*DHSZ);
-
-	//alineo en -1 porque hay más loads/stores en -1. NO MEJORA
-	//~ Manna_Array h = (Manna_Array) aligned_alloc(128, SIZE+4);
-	//~ Manna_Array dh = (Manna_Array) aligned_alloc(128, sizeof(int)*DHSZ+4); //ver de alinear en -1 si conviene porque todos los store/load son así. Lo probé y no mejora
-	//~ h++; dh++;
 
 	cout << "estado inicial estable de la pila de arena...";
 	inicializacion(h);
