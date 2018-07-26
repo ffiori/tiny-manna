@@ -25,7 +25,7 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #include <cassert>
 #include <malloc.h>
 #include <x86intrin.h> //SIMD
-//~ #include <omp.h> //OpenMP
+#include <omp.h> //OpenMP
 
 #define printear(leftold) _mm_extract_epi32(leftold,0)<<" "<<_mm_extract_epi32(leftold,1)<<" "<<_mm_extract_epi32(leftold,2)<<" "<<_mm_extract_epi32(leftold,3)
 #define printear256(leftold) _mm256_extract_epi32(leftold,0)<<" "<<_mm256_extract_epi32(leftold,1)<<" "<<_mm256_extract_epi32(leftold,2)<<" "<<_mm256_extract_epi32(leftold,3)<<" "<<_mm256_extract_epi32(leftold,4)<<" "<<_mm256_extract_epi32(leftold,5)<<" "<<_mm256_extract_epi32(leftold,6)<<" "<<_mm256_extract_epi32(leftold,7)
@@ -144,7 +144,7 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 	}
 }
 
-#define DHSZ 32
+#define DHSZ N
 
 #ifdef DEBUG
 void printdh(Manna_Array dh){
@@ -176,27 +176,27 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 			h[i] = 0;
 		}
 		
-		if(i>1){ //actualizo salvo h[0] y h[N-1]
-			h[i-1] += dh[i-1];
-			nroactivos += (h[i-1]>1);
-		}
+		//~ if(i>1){ //actualizo salvo h[0] y h[N-1]
+			//~ h[i-1] += dh[i-1];
+			//~ nroactivos += (h[i-1]>1);
+		//~ }
 	}
 	
 	#ifdef DEBUG
-	printdh(dh);
+	//~ printdh(dh);
 	#endif
 	
-	__m256i left = _mm256_loadu_si256((__m256i *) &dh[i-1]); //i=NSIMD
-	__m256i right = zeroes;
-
-	#pragma omp parallel for simd
+	//~ #pragma omp parallel for simd aligned(h,dh:16)
+	#pragma omp parallel for shared(h,dh)
 	for (i=NSIMD; i < N-NSIMD; i+=NSIMD) {
+		__m256i left = zeroes; //_mm256_loadu_si256((__m256i *) &dh[i-1]); //i=NSIMD
+		__m256i right = zeroes;
 		__m256i slots = _mm256_load_si256((__m256i *) &h[i]);
 		__m256i slots_gt1 = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
 		__m256i active_slots; //va a tener 0xffff en el slot si está activo
 
 		#ifdef DEBUG
-		cout<<"\nSLOTS NOW: "<<printear256(slots)<<endl;
+		//~ cout<<"\nSLOTS NOW: "<<printear256(slots)<<endl;
 		#endif
 		
 		bool activity = false;
@@ -208,7 +208,7 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 			__m256i randomleft = _mm256_xor_si256(randomright, ones);
 			
 			#ifdef DEBUG
-			cout<<"random left: "<<printear256(randomleft)<<". right: "<<printear256(randomright)<<endl;
+			//~ cout<<"random left: "<<printear256(randomleft)<<". right: "<<printear256(randomright)<<endl;
 			#endif
 			
 			__m256i addright = _mm256_and_si256(randomright, active_slots);
@@ -221,45 +221,49 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 		}
 
 		#ifdef DEBUG		
-		cout<<"update left: "<<printear256(left)<<". right: "<<printear256(right)<<endl;
+		//~ cout<<"update left: "<<printear256(left)<<". right: "<<printear256(right)<<endl;
 		#endif
 
-		//escribo en dh
-		__m256i solapado = shift64right(right); //valores sumados en right cuyos indices coinciden con indices sumados en left
-		__m256i left_to_store = _mm256_add_epi32(left,solapado); //los junto para storearlos ahora
+		if(activity){
+			//escribo en dh
+			__m256i solapado = shift64right(right); //valores sumados en right cuyos indices coinciden con indices sumados en left
+			__m256i left_to_store = _mm256_add_epi32(left,solapado); //los junto para storearlos ahora
+			__m256i right_to_store = shift192left(right);
 
-		#ifdef DEBUG
-		cout<<"solapavale "<<printear256(solapado)<<endl;
-		cout<<"leftS vale "<<printear256(left_to_store)<<endl;
-		#endif
-
-		left = shift192left(right); //acumulo los valores que no se solapan
-		right = zeroes;
-		
-		if(activity) _mm256_store_si256((__m256i *) &h[i],slots);
-		
-		//actualizo
-		if(!_mm256_testz_si256(left_to_store,left_to_store)){ //if (left_to_store != 0)
-			slots = _mm256_loadu_si256((__m256i *) &h[i-1]);
-			slots = _mm256_add_epi32(slots, left_to_store);
-			_mm256_storeu_si256((__m256i *) &h[i-1], slots);
-		
 			#ifdef DEBUG
-			cout<<"SLOTS tow: "<<printear256(slots)<<endl;
+			cout<<"solapavale "<<printear256(solapado)<<endl;
+			cout<<"leftS vale "<<printear256(left_to_store)<<endl;
 			#endif
-		
-			__m256i tmp = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
-			nroactivos += __builtin_popcount(_mm256_movemask_epi8(tmp))/4;
+			
+			_mm256_store_si256((__m256i *) &h[i],slots);
+			
+			if(!_mm256_testz_si256(left_to_store,left_to_store)){
+				#pragma omp critical(dh_io)
+				{
+					slots = _mm256_loadu_si256((__m256i *) &dh[i-1]);
+					slots = _mm256_add_epi32(slots, left_to_store);
+					_mm256_storeu_si256((__m256i *) &dh[i-1], slots);
+				}
+			}
+			
+			if(!_mm256_testz_si256(right_to_store,right_to_store)){
+				#pragma omp critical(dh_io)
+				{
+					slots = _mm256_loadu_si256((__m256i *) &dh[i+7]);
+					slots = _mm256_add_epi32(slots, right_to_store);
+					_mm256_storeu_si256((__m256i *) &dh[i+7], slots);
+				}
+			}
 		}
 	}
 
-	_mm256_storeu_si256((__m256i *) &dh[(i-1)%DHSZ],left);
+	//~ _mm256_storeu_si256((__m256i *) &dh[(i-1)%DHSZ],left);
 
 	#ifdef DEBUG
-	printdh(dh);
+	//~ printdh(dh);
 	#endif
 
-	for (; i < N; ++i){
+	for (i=N-NSIMD; i < N; ++i){
 		if(h[i] > 1) {
 			for (int j = 0; j < h[i]; ++j) {
 				int k = (i+2*randbool()-1)%DHSZ;
@@ -268,20 +272,26 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 			h[i] = 0;
 		}
 		//actualizo
-		h[i-1] += dh[(i-1)%DHSZ];
-        nroactivos += (h[i-1]>1);
+		//~ h[i-1] += dh[(i-1)%DHSZ];
+        //~ nroactivos += (h[i-1]>1);
 	}
 	
 	//actualizo N-1
-    h[N-1] += dh[(N-1)%DHSZ];
-    nroactivos += (h[N-1]>1);
+    //~ h[N-1] += dh[(N-1)%DHSZ];
+    //~ nroactivos += (h[N-1]>1);
     
 	//actualizo 0
-    h[0] += dh[0];
-    nroactivos += (h[0]>1);
+    //~ h[0] += dh[0];
+    //~ nroactivos += (h[0]>1);
+
+	#pragma omp parallel for simd reduction(+:nroactivos)
+	for (int i = 0; i < N; ++i) {
+		h[i] += dh[i];
+		nroactivos += (h[i]>1);
+	}
 
 	#ifdef DEBUG
-	printdh(dh);
+	//~ printdh(dh); cout<<endl;
 	#endif
 
 	return nroactivos;
@@ -383,9 +393,9 @@ return 0;
 	do {
 		activity_out << (activity=descargar(h,dh)) << "\n";
 		#ifdef DEBUG
-		//~ if(t and t%100==0)
+		if(t and t%100==0)
 			imprimir_array(h);
-		//~ if(t==3) return 0;
+		//~ if(t==30) return 0;
 		#endif
 		++t;
 	} while(activity > 0 && t < NSTEPS); // si la actividad decae a cero, esto no evoluciona mas...
