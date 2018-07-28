@@ -270,6 +270,7 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array* __restrict__ dh)
 	
 	unsigned int nroactivos = 0;
 	
+	/*
 	#pragma omp parallel for simd reduction(+:nroactivos)
 	for (int i = 0; i < N; ++i) {
 		//~ h[i] = !(h[i]-1); //TODO chequear. = if(h[i]>1) h[i]=0;
@@ -277,6 +278,22 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array* __restrict__ dh)
 			h[i] += dh[id][i]*active_thread[id];
 		}
 		nroactivos += (h[i]>1);
+	}
+	*/
+	
+	for(int id=0; id < MAX_THREADS-1; ++id) if(active_thread[id]){
+		#pragma omp parallel for simd
+		for (int i = 0; i < N; ++i) {
+			h[i] += dh[id][i];
+		}
+	}
+	
+	if(active_thread[MAX_THREADS-1]){
+		#pragma omp parallel for simd reduction(+:nroactivos)
+		for (int i = 0; i < N; ++i) {
+			h[i] += dh[MAX_THREADS-1][i]*active_thread[MAX_THREADS-1];
+			nroactivos += (h[i]>1);
+		}
 	}
 	
 	return nroactivos;
