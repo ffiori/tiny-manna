@@ -119,30 +119,42 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 	}
 }
 
-// DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
-unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
-{
-	memset(dh, 0, SIZE);
+int MAX_THREADS;
 
-	#pragma omp parallel for shared(h,dh)
+// DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
+unsigned int descargar(Manna_Array __restrict__ h, Manna_Array* __restrict__ dh)
+{
+	bool active_thread[MAX_THREADS] = {false};
+
+	#pragma omp parallel shared(dh,h,active_thread)
+	{
+
+	int myID = omp_get_thread_num();
+	active_thread[myID] = true;
+	memset(dh[myID], 0, SIZE);
+
+	#pragma omp for schedule(static) nowait
 	for (int i = 0; i < N; ++i) {
-		// si es activo lo descargo aleatoriamente
-		if (h[i] > 1) {
+		if (h[i] > 1) { // si es activo lo descargo aleatoriamente
+			myID = omp_get_thread_num();
 			for (int j = 0; j < h[i]; ++j) {
-				// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-				int k = (i+2*randbool()-1+N)%N;
-				#pragma omp atomic
-				++dh[k];
+				int k = (i+2*randbool()-1+N)%N; // sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
+				++dh[myID][k];
 			}
 			h[i] = 0;
 		}
+	}
+	
 	}
 
 	unsigned int nroactivos=0;
 	
 	#pragma omp parallel for simd reduction(+:nroactivos)
 	for (int i = 0; i < N; ++i) {
-		h[i] += dh[i];
+		//~ h[i] = !(h[i]-1); //TODO chequear. = if(h[i]>1) h[i]=0;
+		for(int id=0; id < MAX_THREADS; ++id) {
+			h[i] += dh[id][i]*active_thread[id];
+		}
 		nroactivos += (h[i]>1);
 	}
 
@@ -156,10 +168,14 @@ int main(){
 
 	randinit();
 
+	MAX_THREADS = omp_get_max_threads();
+
 	// nro granitos en cada sitio, y su update
-	//~ Manna_Array h = (int*)alloc(SIZE), dh = (int*)alloc(SIZE);
 	Manna_Array h = (Manna_Array) aligned_alloc(128, SIZE);
-	Manna_Array dh = (Manna_Array) aligned_alloc(128, SIZE);
+	Manna_Array *dh = (Manna_Array *) aligned_alloc(128, sizeof(Manna_Array)*MAX_THREADS);
+	for(int i=0; i<MAX_THREADS; i++){
+		dh[i] = (Manna_Array) aligned_alloc(128, SIZE);
+	}
 
 	cout << "estado inicial estable de la pila de arena...";
 	inicializacion(h);
