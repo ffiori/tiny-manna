@@ -34,7 +34,7 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 //#define N (1024 / 4) //2MB data
 #define SIZE (N * 4)
 
-//~ #define DENSITY 0.8924
+//~ #define DENSITY 0.8924 //original
 #define DENSITY 0.88
 
 // number of temporal steps
@@ -164,20 +164,28 @@ omp_lock_t LOCK[N/NSIMD];
 
 unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 {
-	unsigned int nroactivos = 0;
+	
 	memset(dh, 0, DHSZ*(sizeof(int)));
 
+	#pragma omp parallel shared(h,dh)
+	{
+		
+	#pragma omp for nowait
+	//~ #pragma omp single nowait
+	//~ {
 	for (int i = 0; i < NSIMD; ++i) {
 		if(h[i] > 1) {
 			for (int j = 0; j < h[i]; ++j) {
 				int k = (i+2*randbool()-1+DHSZ)%DHSZ;
+				#pragma omp atomic
 				++dh[k];
 			}
-			//~ h[i] = 0;
+			h[i] = 0;
 		}
 	}
+	//~ }
 	
-	#pragma omp parallel for shared(h,dh) schedule(guided)
+	#pragma omp for schedule(guided) nowait
 	for (int i = NSIMD; i < N-NSIMD; i+=NSIMD) {
 		__m256i left = zeroes;
 		__m256i right = zeroes;
@@ -185,9 +193,9 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 		__m256i slots_gt1 = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
 		__m256i active_slots; //va a tener 0xffff en el slot si está activo
 		
-		bool activity = false;
+		//~ bool activity = false;
 		while(active_slots = _mm256_and_si256(slots_gt1, _mm256_cmpgt_epi32(slots,zeroes)), _mm256_movemask_epi8(active_slots)){ //active_slots[0] or active_slots[1] or...
-			activity = true;
+			//~ activity = true;
 			unsigned char r = randchar();
 			__m256i randomright = MASK[r];
 			__m256i randomleft = _mm256_xor_si256(randomright, ones);
@@ -201,46 +209,56 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 			slots = _mm256_sub_epi32(slots, _mm256_and_si256(active_slots, ones)); // slots - (active_slots & ones), le resto 1 a cada slot activo
 		}
 
-		if(activity){
+		//~ if(activity){
 			//escribo en dh
 			__m256i solapado = shift64right(right); //valores sumados en right cuyos indices coinciden con indices sumados en left
 			__m256i left_to_store = _mm256_add_epi32(left,solapado); //los junto para storearlos ahora
 			__m256i right_to_store = shift192left(right);
 
-			//~ _mm256_store_si256((__m256i *) &h[i],slots);
+			_mm256_store_si256((__m256i *) &h[i],slots);
 			
-			//~ if(!_mm256_testz_si256(left_to_store,left_to_store)){
+			if(!_mm256_testz_si256(left_to_store,left_to_store)){
 				omp_set_lock(&LOCK[i/NSIMD]);
 				slots = _mm256_loadu_si256((__m256i *) &dh[i-1]);
 				slots = _mm256_add_epi32(slots, left_to_store);
 				_mm256_storeu_si256((__m256i *) &dh[i-1], slots);
 				omp_unset_lock(&LOCK[i/NSIMD]);
-			//~ }
+			}
 			
-			//~ if(!_mm256_testz_si256(right_to_store,right_to_store)){
+			if(!_mm256_testz_si256(right_to_store,right_to_store)){
 				omp_set_lock(&LOCK[i/NSIMD+1]);
 				slots = _mm256_loadu_si256((__m256i *) &dh[i+7]);
 				slots = _mm256_add_epi32(slots, right_to_store);
 				_mm256_storeu_si256((__m256i *) &dh[i+7], slots);
 				omp_unset_lock(&LOCK[i/NSIMD+1]);
-			//~ }
-		}
+			}
+		//~ }
 	}
 
+	#pragma omp for nowait
+	//~ #pragma omp single nowait
+	//~ {
 	for (int i = N-NSIMD; i < N; ++i){
 		if(h[i] > 1) {
 			for (int j = 0; j < h[i]; ++j) {
 				int k = (i+2*randbool()-1)%DHSZ;
+				#pragma omp atomic
 				++dh[k];
 			}
-			//~ h[i] = 0;
+			h[i] = 0;
 		}
 	}
+	//~ }
+
+	}//end of omp parallel
+
+	unsigned int nroactivos = 0;
 	
 	#pragma omp parallel for simd reduction(+:nroactivos)
 	for (int i = 0; i < N; ++i) {
-		h[i] = !(h[i]-1) + dh[i];
-		//~ h[i] += dh[i];
+		//~ h[i] = h[i]==1 ? 1+dh[i] : dh[i];
+		//~ h[i] = !(h[i]-1) + dh[i];
+		h[i] += dh[i];
 		nroactivos += (h[i]>1);
 	}
 
