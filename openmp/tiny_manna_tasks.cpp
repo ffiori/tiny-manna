@@ -34,16 +34,22 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 //#define N (1024 / 4) //2MB data
 #define SIZE (N * 4)
 
-//~ #define DENSITY 0.8924
-#define DENSITY 0.88
+#define DENSITY 0.8924
+//#define DENSITY 0.88
 
 // number of temporal steps
 #define NSTEPS 10000
 
 #define DHSZ 32
 #define NSIMD 8
-#define NTASKS 32
-#define STEP ((N-2*NSIMD)/NTASKS - ((N-2*NSIMD)/NTASKS)%8 + 8) //para que sea aligned
+
+#if(N>(1LL<<20))
+#define STEP (N/64) //max 64 tasks
+#else
+#define STEP 16384 //fewer tasks for N<2**20
+#endif
+
+#define NTASKS ((N-2*NSIMD+STEP-1)/STEP) //ceil(N/STEP)
 
 using namespace std;
 
@@ -169,12 +175,46 @@ static inline void process(int from, int to, int tasknum, Manna_Array __restrict
 	cout<<"process from "<<from<<" to "<<to<<". tasknum "<<tasknum<<endl;
 	#endif
 	
-	left_border[tasknum] = zeroes;
 	unsigned int nroactivos = 0;
 	__m256i left = zeroes;
 	__m256i right = zeroes;
 
-	for (int i=from; i < to; i+=NSIMD) {
+	//first iteration///////////////////////////////////////////////////
+	int i=from;
+	__m256i slots = _mm256_load_si256((__m256i *) &h[i]);
+	__m256i slots_gt1 = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
+	__m256i active_slots; //va a tener 0xffff en el slot si está activo
+
+	bool activity = false;
+	while(active_slots = _mm256_and_si256(slots_gt1, _mm256_cmpgt_epi32(slots,zeroes)), _mm256_movemask_epi8(active_slots)){ //active_slots[0] or active_slots[1] or...
+		activity = true;
+		unsigned char r = randchar();
+		__m256i randomright = MASK[r];
+		__m256i randomleft = _mm256_xor_si256(randomright, ones);
+
+		__m256i addright = _mm256_and_si256(randomright, active_slots);
+		__m256i addleft = _mm256_and_si256(randomleft, active_slots);
+
+		left = _mm256_add_epi32(left, addleft);
+		right = _mm256_add_epi32(right, addright);
+
+		slots = _mm256_sub_epi32(slots, _mm256_and_si256(active_slots, ones)); // slots - (active_slots & ones), le resto 1 a cada slot activo
+	}
+
+	//escribo en dh
+	__m256i solapado = shift64right(right); //valores sumados en right cuyos indices coinciden con indices sumados en left
+	__m256i left_to_store = _mm256_add_epi32(left,solapado); //los junto para storearlos ahora
+
+	left = shift192left(right); //acumulo los valores que no se solapan
+	right = zeroes;
+
+	if(activity) _mm256_store_si256((__m256i *) &h[i],slots);
+
+	//actualizo
+	left_border[tasknum] = left_to_store;
+
+	//"not first" iterations////////////////////////////////////////////
+	for (i+=NSIMD; i < to; i+=NSIMD) {
 		__m256i slots = _mm256_load_si256((__m256i *) &h[i]);
 		__m256i slots_gt1 = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
 		__m256i active_slots; //va a tener 0xffff en el slot si está activo
@@ -206,17 +246,12 @@ static inline void process(int from, int to, int tasknum, Manna_Array __restrict
 		
 		//actualizo
 		if(!_mm256_testz_si256(left_to_store,left_to_store)){ //if (left_to_store != 0)
-			if(i==from){ //si es la primera iteración guardo el borde para procesarlo después (se puede sacar afuera para optimizar)
-				left_border[tasknum] = left_to_store;
-			}
-			else{
-				slots = _mm256_loadu_si256((__m256i *) &h[i-1]);
-				slots = _mm256_add_epi32(slots, left_to_store);
-				_mm256_storeu_si256((__m256i *) &h[i-1], slots);
-			
-				__m256i tmp = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
-				nroactivos += __builtin_popcount(_mm256_movemask_epi8(tmp))/4;
-			}
+			slots = _mm256_loadu_si256((__m256i *) &h[i-1]);
+			slots = _mm256_add_epi32(slots, left_to_store);
+			_mm256_storeu_si256((__m256i *) &h[i-1], slots);
+		
+			__m256i tmp = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
+			nroactivos += __builtin_popcount(_mm256_movemask_epi8(tmp))/4;
 		}
 	}
 	
@@ -238,7 +273,7 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 			h[i] = 0;
 		}
 		
-		if(i>1){ //actualizo salvo h[0] y h[N-1], y h[NSIMD-1]...
+		if(i>1){ //actualizo salvo h[0] y h[N-1], y h[NSIMD-1] y h[NSIMD]
 			h[i-1] += dh[i-1];
 			nroactivos += (h[i-1]>1);
 		}
@@ -248,7 +283,7 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 	
 	#pragma omp parallel
 	{
-    #pragma omp single //nowait
+    #pragma omp single nowait
     {
 	//lanzo una task por cada pedazo de for. Hace como un #pragma omp parallel for schedule(dynamic,STEP)
 	for (int i=NSIMD; i < N-NSIMD; i += STEP) {
@@ -256,7 +291,8 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 		cout<<"from i "<<i<<" to "<<i+STEP<<" STEP: "<<STEP<<". NTASKS "<<NTASKS<<" current task "<<(i-NSIMD)/STEP<<endl;
 		#endif
 		
-		#pragma omp task firstprivate(i) default(none) shared(activos,h)
+		#pragma omp taskyield //mejora un toque
+		//~ #pragma omp task firstprivate(i) default(none) shared(activos,h)
 		{
 		int tasknum = (i-NSIMD)/STEP;
 		process(i,min(N-NSIMD,i+STEP),tasknum,h,&activos[tasknum]);
@@ -280,74 +316,75 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
         nroactivos += (h[i-1]>1);
 	}
 	
-	//update borders
-	for(int t=0; t<NTASKS; ++t){ //TODO se puede optimizar sumando los left y right
-		int slot = NSIMD + t*STEP;
+	//~ //update borders
+	//~ for(int t=0; t<NTASKS; ++t){ //TODO se puede optimizar sumando los left y right
+		//~ int slot = NSIMD + t*STEP;
 		
-		//left_border
-		__m256i slots = _mm256_loadu_si256((__m256i *) &h[slot-1]);
-		slots = _mm256_add_epi32(slots, left_border[t]);
-		_mm256_storeu_si256((__m256i *) &h[slot-1], slots);
-		
-		__m256i tmp = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
-		nroactivos += __builtin_popcount(_mm256_movemask_epi8(tmp))/4;
-
-		//right_border
-		slot = min(slot+STEP, N-NSIMD);
-		if(slot==N-NSIMD){ //already counted in nroactivos
-			nroactivos -= (h[slot]>1);
-			nroactivos -= (h[slot-1]>1);
-		}
-		h[slot] += _mm256_extract_epi32(right_border[t],0);
-		h[slot-1] += _mm256_extract_epi32(right_border[t],1);
-		if(slot==N-NSIMD){ //counted in left_border above, except for last task
-			nroactivos += (h[slot]>1);
-			nroactivos += (h[slot-1]>1);
-		}
-		
-		nroactivos += activos[t]; //acumulados de la task
-	}
-
-
-	//~ //update borders///////////////////////////////////////////////////
-	//~ //first task
-	//~ int slot = NSIMD;
-	//~ __m256i slots = _mm256_loadu_si256((__m256i *) &h[slot-1]);
-	//~ slots = _mm256_add_epi32(slots, left_border[0]);
-	//~ _mm256_storeu_si256((__m256i *) &h[slot-1], slots);
-	//~ __m256i tmp = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
-	//~ nroactivos += __builtin_popcount(_mm256_movemask_epi8(tmp))/4;
-
-	//~ //middle tasks
-	//~ for(int t=0; t<NTASKS-1; ++t){ //TODO se puede optimizar sumando los left y right
-		//~ slot = min(slot+STEP, N-NSIMD); //check if slot can be >N-NSIMD before NTASKS tasks
+		//~ //left_border
 		//~ __m256i slots = _mm256_loadu_si256((__m256i *) &h[slot-1]);
-		//~ slots = _mm256_add_epi32(slots, left_border[t+1]);
-		//~ slots = _mm256_add_epi32(slots, right_border[t]);
+		//~ slots = _mm256_add_epi32(slots, left_border[t]);
 		//~ _mm256_storeu_si256((__m256i *) &h[slot-1], slots);
 		
 		//~ __m256i tmp = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
 		//~ nroactivos += __builtin_popcount(_mm256_movemask_epi8(tmp))/4;
 
+		//~ //right_border
+		//~ slot = min(slot+STEP, N-NSIMD);
+		//~ if(slot==N-NSIMD){ //already counted in nroactivos
+			//~ nroactivos -= (h[slot]>1);
+			//~ nroactivos -= (h[slot-1]>1);
+		//~ }
+		//~ h[slot] += _mm256_extract_epi32(right_border[t],0);
+		//~ h[slot-1] += _mm256_extract_epi32(right_border[t],1);
+		//~ if(slot==N-NSIMD){ //counted in left_border above, except for last task
+			//~ nroactivos += (h[slot]>1);
+			//~ nroactivos += (h[slot-1]>1);
+		//~ }
+		
 		//~ nroactivos += activos[t]; //acumulados de la task
 	//~ }
 
-	//~ //last task
-	//~ slot = N-NSIMD;
-	
-	//~ //already counted in nroactivos
-	//~ nroactivos -= (h[slot]>1);
-	//~ nroactivos -= (h[slot-1]>1);
-	
-	//~ h[slot] += _mm256_extract_epi32(right_border[NTASKS-1],0);
-	//~ h[slot-1] += _mm256_extract_epi32(right_border[NTASKS-1],1);
-	
-	//~ //counted in left_border above, except for last task
-	//~ nroactivos += (h[slot]>1);
-	//~ nroactivos += (h[slot-1]>1);
 
-	//~ nroactivos += activos[NTASKS-1]; //acumulados de la task
-//~ /////////////////////////////////////
+	//update borders///////////////////////////////////////////////////
+	//first task
+	int slot = NSIMD;
+	__m256i slots = _mm256_loadu_si256((__m256i *) &h[slot-1]);
+	slots = _mm256_add_epi32(slots, left_border[0]);
+	_mm256_storeu_si256((__m256i *) &h[slot-1], slots);
+	__m256i tmp = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
+	nroactivos += __builtin_popcount(_mm256_movemask_epi8(tmp))/4;
+
+	//middle tasks
+	#pragma omp parallel for reduction(+:nroactivos)
+	for(int t=0; t<NTASKS-1; ++t){ //TODO se puede optimizar sumando los left y right
+		int slot = NSIMD + (t+1)*STEP - 1;
+		__m256i slots = _mm256_loadu_si256((__m256i *) &h[slot]);
+		slots = _mm256_add_epi32(slots, left_border[t+1]);
+		slots = _mm256_add_epi32(slots, right_border[t]);
+		_mm256_storeu_si256((__m256i *) &h[slot], slots);
+		
+		__m256i tmp = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
+		nroactivos += __builtin_popcount(_mm256_movemask_epi8(tmp))/4;
+
+		nroactivos += activos[t]; //acumulados de la task
+	}
+
+	//last task
+	slot = N-NSIMD;
+	
+	//already counted in nroactivos
+	nroactivos -= (h[slot]>1);
+	nroactivos -= (h[slot-1]>1);
+	
+	h[slot] += _mm256_extract_epi32(right_border[NTASKS-1],0);
+	h[slot-1] += _mm256_extract_epi32(right_border[NTASKS-1],1);
+	
+	//counted in left_border above, except for last task
+	nroactivos += (h[slot]>1);
+	nroactivos += (h[slot-1]>1);
+
+	nroactivos += activos[NTASKS-1]; //acumulados de la task
+////////////////////////////////////////////////////////////////////////
 
 	//actualizo N-1
     h[N-1] += dh[(N-1)%DHSZ];
@@ -373,6 +410,8 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 int main(){
 	ios::sync_with_stdio(0); cin.tie(0);
 	randinit();
+
+	assert(STEP%8==0); //para que se puedan usar load/store aligned
 
 	// nro granitos en cada sitio, y su update
 	Manna_Array h = (Manna_Array) aligned_alloc(128, SIZE);
@@ -413,10 +452,10 @@ int main(){
 }
 
 /*
- * Ejecutar con zx81$ OMP_NUM_THREADS=6 taskset -c 0-5 numactl --interleave=all perf_4.17 stat -d -r 1 ./tiny_manna_tasks
+ * Ejecutar con zx81$ OMP_NUM_THREADS=4 taskset -c 0-5 numactl --interleave=all perf_4.17 stat -d -r 1 ./tiny_manna_tasks
  * TODO:
  *   Chequear si anda!!! -> furula
  *   Pulir, se pueden optimizar un par de fors capaz. -> el update borders no mejora
- *   Buscar valores óptimos para NTASKS. -> 32 o 64. Capaz convenga hacerlo depender de N.
+ *   Buscar valores óptimos para NTASKS. -> 32 o 64 para 2^20 slots.
  *   Tener en cuenta que la versión final hay que testear con DENSITY 0.8924
  */ 
