@@ -34,29 +34,30 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 //#define N (1024 / 4) //2MB data
 #define SIZE (N * 4)
 
-#define DENSITY 0.8924
-//#define DENSITY 0.88
+#define DENSITY 0.8924 	//original denstiy
+//~ #define DENSITY 0.88 //trick to fix behavior
 
-// number of temporal steps
-#define NSTEPS 10000
+#define NSTEPS 10000 	//number of temporal steps, originally 1e9
 
-#define DHSZ 32
-#define NSIMD 8
+#define DHSZ 32	
+#define NSIMD 8		//length of simd instructions
 
-#if(N>(1LL<<20))
+#if(N>(1LL<<20))	//size of tasks
 #define STEP (N/64) //max 64 tasks
 #else
-#define STEP 16384 //fewer tasks for N<2**20
+#define STEP 16384 	//fewer tasks for N<2**20
 #endif
 
 #define NTASKS ((N-2*NSIMD+STEP-1)/STEP) //ceil(N/STEP)
+
+#define MAX_THREADS 12
+#define CACHECHK (16*1024) //chunk of space between seeds to avoid false sharing
+unsigned int seeds[MAX_THREADS*CACHECHK];
 
 using namespace std;
 
 typedef double REAL;
 typedef int * Manna_Array;
-
-static default_random_engine generator;
 
 const __m256i zeroes = _mm256_setzero_si256();
 const __m128i zeroes128 = _mm_setzero_si128();
@@ -68,26 +69,18 @@ const __m256i ones = _mm256_set1_epi32(1); //broadcasts 1
 
 void randinit() {
 	random_device rd;
-	generator = default_random_engine(SEED ? SEED : rd());
-	//~ srand(SEED ? SEED : time(NULL));
+	for(int i=0; i<MAX_THREADS; ++i) 
+		seeds[i*CACHECHK] = SEED ? SEED : rd();
 }
 
-static inline bool randbool() { //return 1;
-	uniform_int_distribution<int> distribution(0,1);
-	return distribution(generator);
+static inline bool randbool() {
+	//~ return 1; //trick to fix behavior
+	return 1 & rand_r(&seeds[omp_get_thread_num()*CACHECHK]);
 }
 
-static inline unsigned char randchar() { //return 0;
-	uniform_int_distribution<unsigned char> distribution(0,255);
-	return distribution(generator);
-}
-
-static inline __m256i shift_half_right(__m256i input){ //not used
-	return _mm256_set_m128i(_mm256_extracti128_si256(input,0), zeroes128);
-}
-
-static inline __m256i shift_half_left(__m256i input){ //not used
-	return _mm256_set_m128i(zeroes128, _mm256_extracti128_si256(input,1));
+static inline unsigned char randchar() { 
+	//~ return 0; //trick to fix behavior
+	return rand_r(&seeds[omp_get_thread_num()*CACHECHK]);
 }
 
 const __m256i maskfff0 = _mm256_set_epi64x(-1,-1,-1,0);
@@ -113,7 +106,6 @@ void inicializacion(Manna_Array __restrict__ h)
 	}
 }
 
-#ifdef DEBUG
 void imprimir_array(Manna_Array __restrict__ h)
 {
 	int nrogranitos=0;
@@ -131,7 +123,6 @@ void imprimir_array(Manna_Array __restrict__ h)
 	cout << "La densidad obtenida es " << nrogranitos*1.0/N;
 	cout << ", mientras que la deseada era " << DENSITY << "\n\n";
 }
-#endif
 
 // CONDICION INICIAL ---------------------------------------------------------------
 /*
@@ -146,7 +137,7 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 		if (h[i] == 1) {
 			h[i] = 0;
 			int j=(i+2*randbool()-1+N)%N; // izquierda o derecha
-			//~ int j=(i+2*((i%3)%2)-1+N)%N; // izquierda o derecha
+			//~ int j=(i+2*((i%3)%2)-1+N)%N; //trick to fix behavior
 			
 			index_a_incrementar.push_back(j);
 		}
@@ -169,7 +160,7 @@ _mm256_blend_epi32(ones,zeroes, 0 ), _mm256_blend_epi32(ones,zeroes, 1 ), _mm256
 __m256i left_border[NTASKS],right_border[NTASKS];
 
 //descarga slots [from,to), actualiza h (salvo borde derecho h[to-1] y h[to], que guarda el dh en left_border[tasknum]), y devuelve cantidad de slots activos en result.
-static inline void process(int from, int to, int tasknum, Manna_Array __restrict__ h, unsigned int *result)
+static inline void process(int from, int to, int tasknum, Manna_Array __restrict__ h, unsigned int * __restrict__ result)
 {
 	#ifdef DEBUG
 	cout<<"process from "<<from<<" to "<<to<<". tasknum "<<tasknum<<endl;
@@ -263,7 +254,11 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 {
 	unsigned int nroactivos = 0;
 	memset(dh, 0, DHSZ*(sizeof(int)));
+	unsigned int activos[NTASKS] = {0}; //maybe can be optimized by avoiding false sharing
 	
+	#pragma omp parallel shared(nroactivos,activos)
+	{
+	#pragma omp single nowait
 	for (int i = 0; i < NSIMD; ++i) {
 		if(h[i] > 1) {
 			for (int j = 0; j < h[i]; ++j) {
@@ -279,11 +274,7 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 		}
 	}
 	
-	unsigned int activos[NTASKS]={0};
-	
-	#pragma omp parallel
-	{
-    #pragma omp single nowait
+    #pragma omp single
     {
 	//lanzo una task por cada pedazo de for. Hace como un #pragma omp parallel for schedule(dynamic,STEP)
 	for (int i=NSIMD; i < N-NSIMD; i += STEP) {
@@ -291,8 +282,8 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 		cout<<"from i "<<i<<" to "<<i+STEP<<" STEP: "<<STEP<<". NTASKS "<<NTASKS<<" current task "<<(i-NSIMD)/STEP<<endl;
 		#endif
 		
-		#pragma omp taskyield //mejora un toque
-		//~ #pragma omp task firstprivate(i) default(none) shared(activos,h)
+		//~ #pragma omp taskyield //mejora un toque
+		#pragma omp task firstprivate(i) default(none) shared(activos,h)
 		{
 		int tasknum = (i-NSIMD)/STEP;
 		process(i,min(N-NSIMD,i+STEP),tasknum,h,&activos[tasknum]);
@@ -301,8 +292,8 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 	
 	#pragma omp taskwait
 	}
-	}
 	
+	#pragma omp single //must wait for all threads by the end of it (cannot use nowait)
 	for (int i=N-NSIMD; i < N; ++i){
 		if(h[i] > 1) {
 			for (int j = 0; j < h[i]; ++j) {
@@ -316,47 +307,22 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
         nroactivos += (h[i-1]>1);
 	}
 	
-	//~ //update borders
-	//~ for(int t=0; t<NTASKS; ++t){ //TODO se puede optimizar sumando los left y right
-		//~ int slot = NSIMD + t*STEP;
-		
-		//~ //left_border
-		//~ __m256i slots = _mm256_loadu_si256((__m256i *) &h[slot-1]);
-		//~ slots = _mm256_add_epi32(slots, left_border[t]);
-		//~ _mm256_storeu_si256((__m256i *) &h[slot-1], slots);
-		
-		//~ __m256i tmp = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
-		//~ nroactivos += __builtin_popcount(_mm256_movemask_epi8(tmp))/4;
-
-		//~ //right_border
-		//~ slot = min(slot+STEP, N-NSIMD);
-		//~ if(slot==N-NSIMD){ //already counted in nroactivos
-			//~ nroactivos -= (h[slot]>1);
-			//~ nroactivos -= (h[slot-1]>1);
-		//~ }
-		//~ h[slot] += _mm256_extract_epi32(right_border[t],0);
-		//~ h[slot-1] += _mm256_extract_epi32(right_border[t],1);
-		//~ if(slot==N-NSIMD){ //counted in left_border above, except for last task
-			//~ nroactivos += (h[slot]>1);
-			//~ nroactivos += (h[slot-1]>1);
-		//~ }
-		
-		//~ nroactivos += activos[t]; //acumulados de la task
-	//~ }
-
-
-	//update borders///////////////////////////////////////////////////
+	//update borders////////////////////////////////////////////////////
 	//first task
+	#pragma omp single nowait
+	{
 	int slot = NSIMD;
 	__m256i slots = _mm256_loadu_si256((__m256i *) &h[slot-1]);
 	slots = _mm256_add_epi32(slots, left_border[0]);
 	_mm256_storeu_si256((__m256i *) &h[slot-1], slots);
 	__m256i tmp = _mm256_cmpgt_epi32(slots,ones); //slots greater than 1
+	#pragma omp atomic
 	nroactivos += __builtin_popcount(_mm256_movemask_epi8(tmp))/4;
-
+	}
+	
 	//middle tasks
-	#pragma omp parallel for reduction(+:nroactivos)
-	for(int t=0; t<NTASKS-1; ++t){ //TODO se puede optimizar sumando los left y right
+	#pragma omp for reduction(+:nroactivos) //must wait
+	for(int t=0; t<NTASKS-1; ++t){
 		int slot = NSIMD + (t+1)*STEP - 1;
 		__m256i slots = _mm256_loadu_si256((__m256i *) &h[slot]);
 		slots = _mm256_add_epi32(slots, left_border[t+1]);
@@ -370,21 +336,23 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 	}
 
 	//last task
-	slot = N-NSIMD;
+	#pragma omp single nowait
+	{ 
+	int slot = N-NSIMD;
 	
 	//already counted in nroactivos
-	nroactivos -= (h[slot]>1);
-	nroactivos -= (h[slot-1]>1);
+	nroactivos -= (h[slot]>1) + (h[slot-1]>1);
 	
 	h[slot] += _mm256_extract_epi32(right_border[NTASKS-1],0);
 	h[slot-1] += _mm256_extract_epi32(right_border[NTASKS-1],1);
 	
 	//counted in left_border above, except for last task
-	nroactivos += (h[slot]>1);
-	nroactivos += (h[slot-1]>1);
+	nroactivos += (h[slot]>1) + (h[slot-1]>1);
 
 	nroactivos += activos[NTASKS-1]; //acumulados de la task
+	}
 ////////////////////////////////////////////////////////////////////////
+	} //omp parallel end
 
 	//actualizo N-1
     h[N-1] += dh[(N-1)%DHSZ];
@@ -395,11 +363,11 @@ unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
     nroactivos += (h[0]>1);
 
 	//actualizo NSIMD y NSIMD-1 OJO
-	nroactivos -= (h[NSIMD]>1);
+	nroactivos -= (h[NSIMD]>1); //counted in first task
 	h[NSIMD] += dh[NSIMD%DHSZ];
 	nroactivos += (h[NSIMD]>1);
 	
-	nroactivos -= (h[NSIMD-1]>1);
+	nroactivos -= (h[NSIMD-1]>1); //counted in first task
 	h[NSIMD-1] += dh[(NSIMD-1)%DHSZ];
 	nroactivos += (h[NSIMD-1]>1);
 
@@ -452,10 +420,9 @@ int main(){
 }
 
 /*
- * Ejecutar con zx81$ OMP_NUM_THREADS=4 taskset -c 0-5 numactl --interleave=all perf_4.17 stat -d -r 1 ./tiny_manna_tasks
+ * Ejecutar con zx81$ OMP_NUM_THREADS=11 taskset -c 0-11 numactl --interleave=all perf_4.17 stat -d -r 1 ./tiny_manna_tasks
  * TODO:
  *   Chequear si anda!!! -> furula
- *   Pulir, se pueden optimizar un par de fors capaz. -> el update borders no mejora
  *   Buscar valores óptimos para NTASKS. -> 32 o 64 para 2^20 slots.
  *   Tener en cuenta que la versión final hay que testear con DENSITY 0.8924
  */ 
