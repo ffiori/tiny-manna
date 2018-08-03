@@ -1,7 +1,7 @@
 #!/bin/bash
-#SBATCH --job-name=fiori
+#SBATCH --job-name=manna-openmp
 #SBATCH --partition=batch
-#SBATCH --nodes=1
+#SBATCH --nodes=12
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=12
 #SBATCH --gres=gpu:0

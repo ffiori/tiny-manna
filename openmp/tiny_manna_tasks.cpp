@@ -39,19 +39,29 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 
 #define NSTEPS 10000 	//number of temporal steps, originally 1e9
 
-#define DHSZ 32	
+#define DHSZ 32		//number of slots of dh
 #define NSIMD 8		//length of simd instructions
 
-#if(N>(1LL<<20))	//size of tasks
+#if(N>=(1LL<<17))	//size of tasks
 #define STEP (N/64) //max 64 tasks
 #else
-#define STEP 16384 	//fewer tasks for N<2**20
+#define STEP 2048 	//fewer tasks for N < 2**17 = 131072
 #endif
+
+/* N      | Best NTASKS 
+ * >=2**17 -> 64 tasks
+ * 2**16 -> 32 tasks (step=2048)
+ * 2**15 -> 16 o 8 tasks (step=2048 o 4096)
+ * 2**14 -> 4 tasks (4096) o 8 tasks (2048) un toque más lento
+ * 2**13 -> 4 tasks (2048)
+ * 2**12 -> 2 tasks (2048)
+ * 2**11 -> 1 task (>=2048)
+ */ 
 
 #define NTASKS ((N-2*NSIMD+STEP-1)/STEP) //ceil(N/STEP)
 
 #define MAX_THREADS 12
-#define CACHECHK (16*1024) //chunk of space between seeds to avoid false sharing
+#define CACHECHK 512 	//chunk of space between seeds to avoid false sharing
 unsigned int seeds[MAX_THREADS*CACHECHK];
 
 using namespace std;

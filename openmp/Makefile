@@ -1,8 +1,8 @@
 # Binary file
-BIN = tiny_manna
+BIN = tiny_manna_tasks
 
 # Flags
-CXXFLAGS = -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native -fopt-info-vec -fopenmp #-DDEBUG # -mavx2
+CXXFLAGS = -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native -fopt-info-vec # -fopenmp #-DDEBUG # -mavx2
 #CXXFLAGS = -std=c++0x -fast #icc compiling options
 
 # Compilers
@@ -19,7 +19,7 @@ SEED?=0
 all: $(BIN)
 
 # Rules
-tiny_manna: tiny_manna.cpp #huge-alloc.cpp
+tiny_manna_tasks: tiny_manna_tasks.cpp
 	$(CXX) $(CXXFLAGS) -o $@ $^ -DN=$(N) -DSEED=$(SEED) #-DHUGE
 
 clean:
