@@ -19,8 +19,8 @@ SEED?=0
 all: $(BIN)
 
 # Rules
-tiny_manna: tiny_manna.cpp #huge-alloc.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $^ -DN=$(N) -DSEED=$(SEED) #-DHUGE
+tiny_manna: tiny_manna.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^ -DN=$(N) -DSEED=$(SEED)
 
 clean:
 	rm -f $(BIN) *.o *.dat

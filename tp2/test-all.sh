@@ -1,11 +1,7 @@
 #!/bin/bash
 
-MANNA_BINARY="./tiny_manna_sin"
-SUFFIX="-small"
-if [ "$HUGE" = "1" ]; then
-        MANNA_BINARY="./tiny_manna_con"
-        SUFFIX="-huge"
-fi
+MANNA_BINARY="./tiny_manna"
+SUFFIX="-simd"
 
 file="results$SUFFIX.txt"
 runs=3

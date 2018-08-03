@@ -51,7 +51,7 @@ void randinit() {
 	generator = default_random_engine(SEED ? SEED : rd());
 }
 
-static inline bool randbool() {
+static inline bool randbool() { return 1;
         uniform_int_distribution<int> distribution(0,1);
         return distribution(generator);
 }
@@ -100,7 +100,8 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 	for (int i = 0; i < N; ++i){
 		if (h[i] == 1) {
 			h[i] = 0;
-			int j=(i+2*randbool()-1+N)%N; // izquierda o derecha
+			//~ int j=(i+2*randbool()-1+N)%N; // izquierda o derecha
+			int j=(i+2*((i%3)%2)-1+N)%N; // izquierda o derecha
 
 			// corrijo por condiciones periodicas
 			//if (j == N) j = 0;
