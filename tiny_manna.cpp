@@ -16,45 +16,24 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 
 #include <iostream>
 #include <fstream>
-#include <cstring>
 #include <array>
 #include <vector>
-#include <cstdlib>
-#include <random>
+#include <stdlib.h>
 
 // number of sites
-//#define N (1024 / 4) //2MB data
-
-#define SIZE (N * 4)
+//~ #define N 32768
 
 // number of sites
-//~ #define DENSITY 0.8924
-#define DENSITY 0.88
+#define DENSITY 0.8924
 
 // number of temporal steps
+//~ #define NSTEPS 1000000000
 #define NSTEPS 10000
 
 using namespace std;
 
 typedef double REAL;
-//~ typedef array<int,N> Manna_Array; // fixed-sized array (recien me entero de que esto existe en STL...)
-typedef int Manna_Array[N]; // fixed-sized array (recien me entero de que esto existe en STL...)
-
-/*
-static inline bool randbool()
-{
-	static int random;
-	static int calls=0;
-	if(calls++%32==0) random=rand();
-	else random>>=1;
-	return random&1;
-}
-*/
-static inline bool randbool() {
-        static default_random_engine generator;
-        uniform_int_distribution<int> distribution(0,1);
-        return distribution(generator);
-}
+typedef array<int,N> Manna_Array; // fixed-sized array (recien me entero de que esto existe en STL...)
 
 
 // CONDICION INICIAL ---------------------------------------------------------------
@@ -100,8 +79,7 @@ void desestabilizacion_inicial(Manna_Array &h)
 	for (int i = 0; i < N; ++i){
 		if (h[i] == 1) {
 			h[i] = 0;
-			//int j=i+2*(rand()%2)-1; // izquierda o derecha
-			int j=i+2*randbool()-1;
+			int j=i+2*(rand()%2)-1; // izquierda o derecha
 
 			// corrijo por condiciones periodicas
 			if (j == N) j = 0;
@@ -118,47 +96,20 @@ void desestabilizacion_inicial(Manna_Array &h)
 // DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
 unsigned int descargar(Manna_Array &h, Manna_Array &dh)
 {
-	//~ dh.fill(0);
-	memset(dh, 0, SIZE);
-
-	int i = 0;
+	dh.fill(0);
 	
-	/* lo saco afuera del loop para simplificar el cálculo de k */
-/*	// si es activo lo descargo aleatoriamente
-	if (h[i] > 1) {
-		for (int j = 0; j < h[i]; ++j) {
-			// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-			int k = (i+2*(rand()&1)-1+N)%N; //&1 instead of %2
-			++dh[k];
-		}
-		h[i] = 0;
-	}
-*/
-	for (i = 0; i < N; ++i) {
+	for (int i = 0; i < N; ++i) {
 		// si es activo lo descargo aleatoriamente
 		if (h[i] > 1) {
 			for (int j = 0; j < h[i]; ++j) {
 				// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-				int k = (i+2*randbool()-1+N)%N;
-				//int k = (i+2*(rand()%2)-1+N)%N;
-				//int k = i+2*(rand()&1)-1; //&1 instead of %2
+				int k = (i+2*(rand()%2)-1+N)%N;
 				++dh[k];
 			}
 			h[i] = 0;
 		}
 	}
-	
-	/* lo saco afuera del loop para simplificar el cálculo de k */
-	// si es activo lo descargo aleatoriamente
-/*	if (h[i] > 1) {
-		for (int j = 0; j < h[i]; ++j) {
-			// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-			int k = (i+2*(rand()&1)-1+N)%N; //&1 instead of %2
-			++dh[k];
-		}
-		h[i] = 0;
-	}
-*/
+
 	unsigned int nroactivos=0;
 	for (int i = 0; i < N; ++i) {
 		h[i] += dh[i];
@@ -171,10 +122,8 @@ unsigned int descargar(Manna_Array &h, Manna_Array &dh)
 //===================================================================
 // Lo compilo asi: g++ tiny_manna.cpp -std=c++0x
 int main(){
-	ios::sync_with_stdio(0); cin.tie(0);
-	
-//	srand(time(0));
-//	srand(12345);
+
+	srand(time(0));
 
 	// nro granitos en cada sitio, y su update
 	Manna_Array h, dh;
@@ -193,13 +142,13 @@ int main(){
 	imprimir_array(h);
 	#endif
 
-	cout << "evolucion de la pila de arena..."; cout.flush();
+	cout << "evolucion de de la pila de arena..."; cout.flush();
 
 	ofstream activity_out("activity.dat");
 	int activity;
 	int t = 0;
 	do {
-		activity_out << (activity=descargar(h,dh)) << "\n";
+		activity_out << (activity=descargar(h,dh)) << endl;
 		#ifdef DEBUG
 		imprimir_array(h);
 		#endif
