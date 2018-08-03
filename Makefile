@@ -2,25 +2,25 @@
 BIN = tiny_manna
 
 # Flags
-CFLAGS = -Wall -Wextra -Werror -std=c++0x -Ofast -flto # -march=native
-LDFLAGS =
+CXXFLAGS = -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native # -mavx2
+#CXXFLAGS = -std=c++0x -fast #icc compiling options
 
 # Compilers
-CPP = g++
-LINKER = g++
+CXX = g++-8
 
-# Files
-MAKEFILE = Makefile
-CPP_SOURCES = $(BIN).cpp
-HEADERS =
-CPP_OBJS = $(patsubst %.cpp, %.o, $(CPP_SOURCES))
+# Default N
+N?=1048576
+
+# Seed. 0 = random
+SEED?=0
+
+.PHONY: all clean
+
+all: $(BIN)
 
 # Rules
-$(BIN): $(CPP_OBJS) $(HEADERS) $(MAKEFILE)
-	$(LINKER) -o $(BIN) $(CPP_OBJS) $(LDFLAGS) $(INCLUDES) $(LIBS)
-
-$(CPP_OBJS): $(CPP_SOURCES) $(HEADERS) $(MAKEFILE)
-	$(CPP) -c $(CPP_SOURCES) $(CFLAGS) $(INCLUDES) $(PARAMETERS)
+tiny_manna: tiny_manna.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^ -DN=$(N) -DSEED=$(SEED)
 
 clean:
 	rm -f $(BIN) *.o *.dat
