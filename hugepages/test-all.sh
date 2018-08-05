@@ -8,7 +8,7 @@ if [ "$HUGE" = "1" ]; then
 fi
 
 file="results$SUFFIX.txt"
-runs=3
+runs=10
 start=1024             #size=4KB
 end=$(( 1024*1024*8 )) #size=32MB
 n=$start #cantidad de ints del array (o sea, size = N*4 bytes)
