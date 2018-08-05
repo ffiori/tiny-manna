@@ -30,12 +30,10 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #define printear(leftold) _mm_extract_epi32(leftold,0)<<" "<<_mm_extract_epi32(leftold,1)<<" "<<_mm_extract_epi32(leftold,2)<<" "<<_mm_extract_epi32(leftold,3)
 #define printear256(leftold) _mm256_extract_epi32(leftold,0)<<" "<<_mm256_extract_epi32(leftold,1)<<" "<<_mm256_extract_epi32(leftold,2)<<" "<<_mm256_extract_epi32(leftold,3)<<" "<<_mm256_extract_epi32(leftold,4)<<" "<<_mm256_extract_epi32(leftold,5)<<" "<<_mm256_extract_epi32(leftold,6)<<" "<<_mm256_extract_epi32(leftold,7)
 
-// number of sites
-//#define N (1024 / 4) //2MB data
+// N is number of sites
 #define SIZE (N * 4)
 
-//~ #define DENSITY 0.8924
-#define DENSITY 0.88
+#define DENSITY 0.8924
 
 // number of temporal steps
 #define NSTEPS 10000
@@ -294,70 +292,11 @@ int main(){
 
 	randinit();
 	
-/*
-int a[8]={1,2,3,4,5,6,7,8};
-__m256i aver = _mm256_loadu_si256((__m256i *)a);
-cout<<printear256(aver)<<endl;
-//~ __m256i aver1 = _mm256_set_m128i(_mm256_extracti128_si256(aver,0), zeroes128);
-//~ cout<<printear256(aver1)<<endl;
-//~ aver1 = _mm256_set_m128i(_mm256_extracti128_si256(aver,1), zeroes128);
-//~ cout<<printear256(aver1)<<endl;
-//~ aver1 = _mm256_set_m128i(zeroes128, _mm256_extracti128_si256(aver,0));
-//~ cout<<printear256(aver1)<<endl;
-//~ aver1 = _mm256_set_m128i(zeroes128, _mm256_extracti128_si256(aver,1));
-//~ cout<<printear256(aver1)<<endl;
-
-//~ _mm256_storeu_si256((__m256i *)a, aver1);
-//~ for(int i=0;i<8;i++)cout<<a[i]<<" ";
-//~ cout<<endl;
-
-//~ 1 2 3 4 5 6 7 8
-//~ 0 0 0 0 1 2 3 4
-//~ 0 0 0 0 5 6 7 8
-//~ 1 2 3 4 0 0 0 0
-//~ 5 6 7 8 0 0 0 0
-//~ 5 6 7 8 0 0 0 0 
-
-//~ __m256i slots_gt1 = _mm256_hadd_epi32(aver,shift_half_left(aver)); // = a0+a1, a2+a3, b0+b1, b2+b3, a4+a5, a6+a7, b4+b5, b6+b7 (pero a=b=slots_gt1) = a0+a1, a2+a3, a0+a1, a2+a3, a4+a5, a6+a7, a4+a5, a6+a7
-//~ slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, .....
-//~ slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3 + b0+b1+b2+b3, ...
-//~ cout<<printear256(slots_gt1)<<endl;
-
-//~ slots_gt1 = aver; // = a0+a1, a2+a3, b0+b1, b2+b3, a4+a5, a6+a7, b4+b5, b6+b7 (pero a=b=slots_gt1) = a0+a1, a2+a3, a0+a1, a2+a3, a4+a5, a6+a7, a4+a5, a6+a7
-//~ slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3, b0+b1+b2+b3, .....
-//~ slots_gt1 = _mm256_hadd_epi32(slots_gt1,slots_gt1); // = a0+a1+a2+a3 + b0+b1+b2+b3, ...
-//~ cout<<printear256(slots_gt1)<<endl;
-//~ cout<<_mm256_extract_epi32(slots_gt1,0) + _mm256_extract_epi32(slots_gt1,7)<<endl;
-
-__m256i input = aver;
-cout<<printear256(input)<<endl;
-input = _mm256_permute4x64_epi64(aver, (3<<6)+(2<<4)+(1<<2));
-cout<<printear256(input)<<endl;
-input = _mm256_permute4x64_epi64(aver, (1<<6)+(2<<4)+(3<<2));
-cout<<printear256(input)<<endl;
-input = _mm256_permute4x64_epi64(aver, (3<<4)+(2<<2)+1);
-cout<<printear256(input)<<endl;
-input = _mm256_permute4x64_epi64(aver, (1<<4)+(2<<2)+3);
-cout<<printear256(input)<<endl;
-
-input = _mm256_permute4x64_epi64(aver, (2<<6) + (1<<4));
-input = _mm256_permute4x64_epi64(aver,_MM_SHUFFLE(2,1,0,3));
-cout<<printear256(input)<<endl;
-
-input = shift192left(aver);
-cout<<printear256(input)<<endl;
-input = shift64right(aver);
-cout<<printear256(input)<<endl;
-return 0;
-*/
-
 	#ifdef DEBUG
 	cout<<"maximo random: "<<RAND_MAX<<endl;
 	#endif
 
 	// nro granitos en cada sitio, y su update
-	//~ Manna_Array h = (int*)alloc(SIZE), dh = (int*)alloc(SIZE);
-
 	Manna_Array h = (Manna_Array) aligned_alloc(128, SIZE);
 	Manna_Array dh = (Manna_Array) aligned_alloc(128, sizeof(int)*DHSZ);
 
@@ -383,9 +322,7 @@ return 0;
 	do {
 		activity_out << (activity=descargar(h,dh)) << "\n";
 		#ifdef DEBUG
-		//~ if(t and t%100==0)
 			imprimir_array(h);
-		//~ if(t==3) return 0;
 		#endif
 		++t;
 	} while(activity > 0 && t < NSTEPS); // si la actividad decae a cero, esto no evoluciona mas...

@@ -29,8 +29,7 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 
 #define SIZE (N * 4)
 
-//~ #define DENSITY 0.8924
-#define DENSITY 0.88
+#define DENSITY 0.8924
 
 // number of temporal steps
 #define NSTEPS 10000
@@ -51,7 +50,7 @@ void randinit() {
 	generator = default_random_engine(SEED ? SEED : rd());
 }
 
-static inline bool randbool() { return 1;
+static inline bool randbool() { //return 1;
         uniform_int_distribution<int> distribution(0,1);
         return distribution(generator);
 }
@@ -100,12 +99,7 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 	for (int i = 0; i < N; ++i){
 		if (h[i] == 1) {
 			h[i] = 0;
-			//~ int j=(i+2*randbool()-1+N)%N; // izquierda o derecha
-			int j=(i+2*((i%3)%2)-1+N)%N; // izquierda o derecha
-
-			// corrijo por condiciones periodicas
-			//if (j == N) j = 0;
-			//if (j == -1) j = N-1;
+			int j=(i+2*randbool()-1+N)%N; // izquierda o derecha
 
 			index_a_incrementar.push_back(j);
 		}
