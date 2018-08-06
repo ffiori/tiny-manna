@@ -1,0 +1,30 @@
+Copyright (C) 2009-2018 Intel Corporation. All rights reserved.
+Intel(R) VTune(TM) Amplifier 2018 (build 551022)
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=1024 -DSEED=0
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=2048 -DSEED=0
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=4096 -DSEED=0
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=8192 -DSEED=0
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=16384 -DSEED=0
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=32768 -DSEED=0
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=65536 -DSEED=0
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=131072 -DSEED=0
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=262144 -DSEED=0
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=524288 -DSEED=0
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=1048576 -DSEED=0
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=2097152 -DSEED=0
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=4194304 -DSEED=0
+rm -f tiny_manna *.o *.dat
+g++-8 -Wall -Wextra -Werror -std=c++0x -Ofast -flto -march=native  -o tiny_manna tiny_manna.cpp -DN=8388608 -DSEED=0

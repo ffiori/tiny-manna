@@ -12,16 +12,44 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: la actividad decayo a cero
 
-          72306290      instructions              #    1.95  insn per cycle           ( +-  5.77% )
-          37058901      cycles                                                        ( +-  8.59% )
-           5106472      cycle_activity.cycles_no_execute                                     ( +- 10.84% )
-             44309      cache-references                                              ( +-  3.36% )
-              3329      cache-misses              #    7.513 % of all cache refs      ( +- 79.85% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-       0.022765564 seconds time elapsed                                          ( +-  8.31% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+          75496537      instructions              #    1.92  insn per cycle           ( +-  2.96% )
+          39315978      cycles                                                        ( +-  4.27% )
+           5305964      cycle_activity.cycles_no_execute                                     ( +-  5.00% )
+             42393      cache-references                                              ( +-  1.51% )
+              1303      cache-misses              #    3.074 % of all cache refs      ( +- 75.23% )
+
+       0.020058391 seconds time elapsed                                          ( +-  7.18% )
 
 ***************** Tamaño  8  KBytes. N vale (slots):  2048  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -36,16 +64,44 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-         148045158      instructions              #    1.86  insn per cycle           ( +-  3.48% )
-          79421925      cycles                                                        ( +-  5.51% )
-          10655973      cycle_activity.cycles_no_execute                                     ( +-  7.85% )
-             44752      cache-references                                              ( +-  4.86% )
-              3685      cache-misses              #    8.234 % of all cache refs      ( +- 76.15% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-       0.038769944 seconds time elapsed                                          ( +-  6.61% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+         145067628      instructions              #    1.89  insn per cycle           ( +-  2.57% )
+          76719590      cycles                                                        ( +-  3.80% )
+          10073992      cycle_activity.cycles_no_execute                                     ( +-  4.82% )
+             43589      cache-references                                              ( +-  1.47% )
+              1292      cache-misses              #    2.963 % of all cache refs      ( +- 65.70% )
+
+       0.036288353 seconds time elapsed                                          ( +-  5.13% )
 
 ***************** Tamaño  16  KBytes. N vale (slots):  4096  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -60,16 +116,44 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-         269267469      instructions              #    1.91  insn per cycle           ( +-  4.54% )
-         140972057      cycles                                                        ( +-  6.73% )
-          18127246      cycle_activity.cycles_no_execute                                     ( +-  7.96% )
-             47807      cache-references                                              ( +-  5.52% )
-              3910      cache-misses              #    8.179 % of all cache refs      ( +- 75.02% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-       0.064253780 seconds time elapsed                                          ( +-  2.84% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+         281298731      instructions              #    1.87  insn per cycle           ( +-  1.87% )
+         150152224      cycles                                                        ( +-  2.65% )
+          19570799      cycle_activity.cycles_no_execute                                     ( +-  3.22% )
+             45011      cache-references                                              ( +-  1.27% )
+              1253      cache-misses              #    2.784 % of all cache refs      ( +- 69.29% )
+
+       0.058848998 seconds time elapsed                                          ( +-  4.82% )
 
 ***************** Tamaño  32  KBytes. N vale (slots):  8192  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -84,16 +168,44 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-         555648758      instructions              #    1.86  insn per cycle           ( +-  2.25% )
-         298883577      cycles                                                        ( +-  3.22% )
-          39100305      cycle_activity.cycles_no_execute                                     ( +-  3.82% )
-             48905      cache-references                                              ( +-  4.01% )
-              3979      cache-misses              #    8.136 % of all cache refs      ( +- 72.29% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-       0.132539194 seconds time elapsed                                          ( +-  3.07% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+         547003254      instructions              #    1.87  insn per cycle           ( +-  1.05% )
+         291831893      cycles                                                        ( +-  1.54% )
+          37873616      cycle_activity.cycles_no_execute                                     ( +-  2.01% )
+             47942      cache-references                                              ( +-  2.34% )
+              1438      cache-misses              #    2.999 % of all cache refs      ( +- 68.73% )
+
+       0.105099003 seconds time elapsed                                          ( +-  5.81% )
 
 ***************** Tamaño  64  KBytes. N vale (slots):  16384  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -108,16 +220,44 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-        1075276987      instructions              #    1.87  insn per cycle           ( +-  1.70% )
-         573994142      cycles                                                        ( +-  2.48% )
-          74584979      cycle_activity.cycles_no_execute                                     ( +-  3.13% )
-             56197      cache-references                                              ( +-  4.36% )
-              5311      cache-misses              #    9.451 % of all cache refs      ( +- 56.67% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-       0.218238143 seconds time elapsed                                          ( +-  8.89% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+        1084118344      instructions              #    1.87  insn per cycle           ( +-  0.60% )
+         580187880      cycles                                                        ( +-  0.85% )
+          75210370      cycle_activity.cycles_no_execute                                     ( +-  1.01% )
+             51996      cache-references                                              ( +-  1.90% )
+              1547      cache-misses              #    2.975 % of all cache refs      ( +- 58.44% )
+
+       0.197080727 seconds time elapsed                                          ( +-  4.08% )
 
 ***************** Tamaño  128  KBytes. N vale (slots):  32768  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -132,16 +272,44 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-        2185140780      instructions              #    1.86  insn per cycle           ( +-  0.80% )
-        1172903947      cycles                                                        ( +-  1.17% )
-         151338414      cycle_activity.cycles_no_execute                                     ( +-  1.56% )
-             94239      cache-references                                              ( +- 21.64% )
-              4701      cache-misses              #    4.989 % of all cache refs      ( +- 74.40% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-       0.383382408 seconds time elapsed                                          ( +-  5.32% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+        2157981757      instructions              #    1.87  insn per cycle           ( +-  0.62% )
+        1152059123      cycles                                                        ( +-  0.91% )
+         147765059      cycle_activity.cycles_no_execute                                     ( +-  1.13% )
+            125938      cache-references                                              ( +- 19.76% )
+              1947      cache-misses              #    1.546 % of all cache refs      ( +- 47.47% )
+
+       0.377852986 seconds time elapsed                                          ( +-  1.72% )
 
 ***************** Tamaño  256  KBytes. N vale (slots):  65536  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -156,16 +324,44 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-        4324744583      instructions              #    1.86  insn per cycle           ( +-  0.82% )
-        2328431215      cycles                                                        ( +-  1.16% )
-         296708520      cycle_activity.cycles_no_execute                                     ( +-  1.53% )
-           1780491      cache-references                                              ( +-  6.17% )
-              6095      cache-misses              #    0.342 % of all cache refs      ( +- 49.05% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-       0.750802534 seconds time elapsed                                          ( +-  1.51% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+        4307612188      instructions              #    1.87  insn per cycle           ( +-  0.27% )
+        2306891441      cycles                                                        ( +-  0.46% )
+         294242226      cycle_activity.cycles_no_execute                                     ( +-  0.48% )
+           1563577      cache-references                                              ( +-  4.23% )
+              2927      cache-misses              #    0.187 % of all cache refs      ( +- 30.06% )
+
+       0.727899950 seconds time elapsed                                          ( +-  0.67% )
 
 ***************** Tamaño  512  KBytes. N vale (slots):  131072  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -180,16 +376,44 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-        8557053481      instructions              #    1.86  insn per cycle           ( +-  0.22% )
-        4597568273      cycles                                                        ( +-  0.22% )
-         580219109      cycle_activity.cycles_no_execute                                     ( +-  0.50% )
-           4822811      cache-references                                              ( +-  3.58% )
-              7661      cache-misses              #    0.159 % of all cache refs      ( +- 43.36% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-       1.477630162 seconds time elapsed                                          ( +-  1.18% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+        8562489271      instructions              #    1.86  insn per cycle           ( +-  0.24% )
+        4602091315      cycles                                                        ( +-  0.31% )
+         581812860      cycle_activity.cycles_no_execute                                     ( +-  0.46% )
+           4810864      cache-references                                              ( +-  1.22% )
+              5285      cache-misses              #    0.110 % of all cache refs      ( +- 23.94% )
+
+       1.456211546 seconds time elapsed                                          ( +-  0.74% )
 
 ***************** Tamaño  1024  KBytes. N vale (slots):  262144  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -204,16 +428,44 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-       17121774367      instructions              #    1.86  insn per cycle           ( +-  0.18% )
-        9188795359      cycles                                                        ( +-  0.40% )
-        1160648134      cycle_activity.cycles_no_execute                                     ( +-  0.20% )
-           8785613      cache-references                                              ( +-  1.64% )
-             13678      cache-misses              #    0.156 % of all cache refs      ( +- 26.46% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-       2.919551802 seconds time elapsed                                          ( +-  0.33% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+       17065971863      instructions              #    1.87  insn per cycle           ( +-  0.26% )
+        9147396512      cycles                                                        ( +-  0.36% )
+        1153132203      cycle_activity.cycles_no_execute                                     ( +-  0.50% )
+           8940792      cache-references                                              ( +-  1.76% )
+              6690      cache-misses              #    0.075 % of all cache refs      ( +- 15.87% )
+
+       2.878826951 seconds time elapsed                                          ( +-  0.44% )
 
 ***************** Tamaño  2048  KBytes. N vale (slots):  524288  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -228,16 +480,44 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-       34276959528      instructions              #    1.86  insn per cycle           ( +-  0.28% )
-       18398212106      cycles                                                        ( +-  0.42% )
-        2319288770      cycle_activity.cycles_no_execute                                     ( +-  0.55% )
-          17396369      cache-references                                              ( +-  0.73% )
-             22712      cache-misses              #    0.131 % of all cache refs      ( +-  8.38% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-       5.802732802 seconds time elapsed                                          ( +-  0.31% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+       34329287512      instructions              #    1.86  insn per cycle           ( +-  0.14% )
+       18475624860      cycles                                                        ( +-  0.21% )
+        2324211718      cycle_activity.cycles_no_execute                                     ( +-  0.26% )
+          16795381      cache-references                                              ( +-  0.51% )
+             14839      cache-misses              #    0.088 % of all cache refs      ( +-  9.37% )
+
+       5.802157952 seconds time elapsed                                          ( +-  0.19% )
 
 ***************** Tamaño  4096  KBytes. N vale (slots):  1048576  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -252,16 +532,44 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-       68703478734      instructions              #    1.86  insn per cycle           ( +-  0.18% )
-       36881667919      cycles                                                        ( +-  0.42% )
-        4644743131      cycle_activity.cycles_no_execute                                     ( +-  0.35% )
-          30832938      cache-references                                              ( +-  1.01% )
-             42727      cache-misses              #    0.139 % of all cache refs      ( +-  2.77% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-      11.589995968 seconds time elapsed                                          ( +-  0.46% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+       68496619719      instructions              #    1.87  insn per cycle           ( +-  0.09% )
+       36668534112      cycles                                                        ( +-  0.16% )
+        4618961735      cycle_activity.cycles_no_execute                                     ( +-  0.17% )
+          30764188      cache-references                                              ( +-  0.45% )
+             32929      cache-misses              #    0.107 % of all cache refs      ( +-  3.91% )
+
+      11.495207635 seconds time elapsed                                          ( +-  0.18% )
 
 ***************** Tamaño  8192  KBytes. N vale (slots):  2097152  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -276,16 +584,44 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-      137128015902      instructions              #    1.87  insn per cycle           ( +-  0.14% )
-       73296283093      cycles                                                        ( +-  0.19% )
-        9242018526      cycle_activity.cycles_no_execute                                     ( +-  0.27% )
-          59197884      cache-references                                              ( +-  0.46% )
-             96991      cache-misses              #    0.164 % of all cache refs      ( +-  0.60% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-      22.959872921 seconds time elapsed                                          ( +-  0.26% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+      137047146145      instructions              #    1.87  insn per cycle           ( +-  0.06% )
+       73380302327      cycles                                                        ( +-  0.09% )
+        9216441359      cycle_activity.cycles_no_execute                                     ( +-  0.15% )
+          57279049      cache-references                                              ( +-  0.50% )
+             88099      cache-misses              #    0.154 % of all cache refs      ( +-  1.34% )
+
+      22.977825857 seconds time elapsed                                          ( +-  0.09% )
 
 ***************** Tamaño  16384  KBytes. N vale (slots):  4194304  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -300,16 +636,44 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-      273869813024      instructions              #    1.83  insn per cycle           ( +-  0.06% )
-      149421947551      cycles                                                        ( +-  0.10% )
-       20973469444      cycle_activity.cycles_no_execute                                     ( +-  0.09% )
-         268455891      cache-references                                              ( +-  0.46% )
-          97671721      cache-misses              #   36.383 % of all cache refs      ( +-  3.58% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-      46.792184060 seconds time elapsed                                          ( +-  0.13% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+      274105870210      instructions              #    1.83  insn per cycle           ( +-  0.04% )
+      149880587345      cycles                                                        ( +-  0.04% )
+       21175214349      cycle_activity.cycles_no_execute                                     ( +-  0.05% )
+         278109334      cache-references                                              ( +-  0.30% )
+         107757828      cache-misses              #   38.747 % of all cache refs      ( +-  1.32% )
+
+      46.926684827 seconds time elapsed                                          ( +-  0.05% )
 
 ***************** Tamaño  32768  KBytes. N vale (slots):  8388608  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -324,15 +688,43 @@ estado inicial estable de la pila de arena...LISTO
 estado inicial desestabilizado de la pila de arena...LISTO
 evolucion de la pila de arena...LISTO: se acabo el tiempo
 
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
- Performance counter stats for './tiny_manna' (3 runs):
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-      548914721693      instructions              #    1.79  insn per cycle           ( +-  0.05% )
-      306853396969      cycles                                                        ( +-  0.09% )
-       45704543456      cycle_activity.cycles_no_execute                                     ( +-  0.16% )
-        1406992380      cache-references                                              ( +-  0.23% )
-         519372605      cache-misses              #   36.914 % of all cache refs      ( +-  0.06% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
 
-      96.019575736 seconds time elapsed                                          ( +-  0.08% )
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna' (10 runs):
+
+      548317731407      instructions              #    1.79  insn per cycle           ( +-  0.03% )
+      307126425120      cycles                                                        ( +-  0.05% )
+       46097040060      cycle_activity.cycles_no_execute                                     ( +-  0.17% )
+        1412291790      cache-references                                              ( +-  0.08% )
+         527474325      cache-misses              #   37.349 % of all cache refs      ( +-  0.12% )
+
+      96.084796937 seconds time elapsed                                          ( +-  0.05% )
 
 ********************************************************************
