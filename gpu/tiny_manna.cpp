@@ -22,20 +22,15 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #include <cstdlib>
 #include <random>
 
-//~ #include "huge-alloc.h"
-#include <cassert>
-#include <malloc.h>
-#include <x86intrin.h> //SIMD
-#include <omp.h> //OpenMP
-
+#include <cuda.h>
+#include "helper_cuda.h"
 
 // number of sites
-//#define N (1024 / 4) //2MB data
+#define N (1024) //TODO: se rompe todo si compilás con -DN=123, cambiar de N a NSLOTS o algo así
 
 #define SIZE (N * 4)
 
-//~ #define DENSITY 0.8924
-#define DENSITY 0.88
+#define DENSITY 0.8924
 
 // number of temporal steps
 #define NSTEPS 10000
@@ -56,7 +51,7 @@ void randinit() {
 	generator = default_random_engine(SEED ? SEED : rd());
 }
 
-static inline bool randbool() {
+static inline bool randbool() { //return 1;
         uniform_int_distribution<int> distribution(0,1);
         return distribution(generator);
 }
@@ -107,10 +102,6 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 			h[i] = 0;
 			int j=(i+2*randbool()-1+N)%N; // izquierda o derecha
 
-			// corrijo por condiciones periodicas
-			//if (j == N) j = 0;
-			//if (j == -1) j = N-1;
-
 			index_a_incrementar.push_back(j);
 		}
 	}
@@ -119,42 +110,28 @@ void desestabilizacion_inicial(Manna_Array __restrict__ h)
 	}
 }
 
-int MAX_THREADS;
-
 // DESCARGA DE ACTIVOS Y UPDATE --------------------------------------------------------
-unsigned int descargar(Manna_Array __restrict__ h, Manna_Array* __restrict__ dh)
+unsigned int descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 {
-	bool active_thread[MAX_THREADS] = {false};
+	memset(dh, 0, SIZE);
 
-	#pragma omp parallel shared(dh,h,active_thread)
-	{
+	int i = 0;
 
-	int myID = omp_get_thread_num();
-	active_thread[myID] = true;
-	memset(dh[myID], 0, SIZE);
-
-	#pragma omp for schedule(static) nowait
-	for (int i = 0; i < N; ++i) {
-		if (h[i] > 1) { // si es activo lo descargo aleatoriamente
-			myID = omp_get_thread_num();
+	for (i = 0; i < N; ++i) {
+		// si es activo lo descargo aleatoriamente
+		if (h[i] > 1) {
 			for (int j = 0; j < h[i]; ++j) {
-				int k = (i+2*randbool()-1+N)%N; // sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
-				++dh[myID][k];
+				// sitio receptor a la izquierda o derecha teniendo en cuenta condiciones periodicas
+				int k = (i+2*randbool()-1+N)%N;
+				++dh[k];
 			}
 			h[i] = 0;
 		}
 	}
-	
-	}
 
 	unsigned int nroactivos=0;
-	
-	#pragma omp parallel for simd reduction(+:nroactivos)
 	for (int i = 0; i < N; ++i) {
-		//~ h[i] = !(h[i]-1); //TODO chequear. = if(h[i]>1) h[i]=0;
-		for(int id=0; id < MAX_THREADS; ++id) {
-			h[i] += dh[id][i]*active_thread[id];
-		}
+		h[i] += dh[i];
 		nroactivos += (h[i]>1);
 	}
 
@@ -168,14 +145,8 @@ int main(){
 
 	randinit();
 
-	MAX_THREADS = omp_get_max_threads();
-
 	// nro granitos en cada sitio, y su update
-	Manna_Array h = (Manna_Array) aligned_alloc(128, SIZE);
-	Manna_Array *dh = (Manna_Array *) aligned_alloc(128, sizeof(Manna_Array)*MAX_THREADS);
-	for(int i=0; i<MAX_THREADS; i++){
-		dh[i] = (Manna_Array) aligned_alloc(128, SIZE);
-	}
+	Manna_Array h = (int*)malloc(SIZE), dh = (int*)malloc(SIZE);
 
 	cout << "estado inicial estable de la pila de arena...";
 	inicializacion(h);
