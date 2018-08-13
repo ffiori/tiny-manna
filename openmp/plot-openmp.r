@@ -23,7 +23,7 @@ plot_field <- function(name, label) {
   print(p)
 }
 
+plot_field("normtime", "Tiempo de ejecución normalizado (slots/s)")
 plot_field("ipc", "Instruciones por ciclo (IPC)")
 plot_field("cachemiss", "Cache miss ratio (%)")
-plot_field("normtime", "Tiempo de ejecución normalizado (slots/s)")
 plot_field("efficiency", "Eficiencia por hilo (vs. lineal)")

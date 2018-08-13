@@ -24,9 +24,9 @@ ggplot(res, aes(x = slots, y = normtime, colour = "Optimizado")) +
   labs(y = "Tiempo de ejecución normalizado (slots/s)") +
   labs(x = "Tamaño del problema (slots, log)") +
   theme(legend.title=element_blank()) +
-  geom_vline(xintercept=8192) + # L1
-  geom_vline(xintercept=65536) + # L2
-  geom_vline(xintercept=3932160) # L3
+  geom_vline(xintercept=4096) + # L1
+  geom_vline(xintercept=32768) + # L2
+  geom_vline(xintercept=1966080) # L3
 
 ggplot(res, aes(x = slots, y = ipc, colour = "Optimizado")) +
   geom_line() +
@@ -37,9 +37,9 @@ ggplot(res, aes(x = slots, y = ipc, colour = "Optimizado")) +
   labs(y = "Instrucciones por ciclo (IPC)") +
   labs(x = "Tamaño del problema (slots, log)") +
   theme(legend.title=element_blank()) +
-  geom_vline(xintercept=8192) + # L1
-  geom_vline(xintercept=65536) + # L2
-  geom_vline(xintercept=3932160) # L3
+  geom_vline(xintercept=4096) + # L1
+  geom_vline(xintercept=32768) + # L2
+  geom_vline(xintercept=1966080) # L3
 
 ggplot(res, aes(x = slots, y = missratio, colour = "Optimizado")) +
   geom_line() +
@@ -50,6 +50,6 @@ ggplot(res, aes(x = slots, y = missratio, colour = "Optimizado")) +
   labs(y = "Cache miss ratio (%)") +
   labs(x = "Tamaño del problema (slots, log)") +
   theme(legend.title=element_blank()) +
-  geom_vline(xintercept=8192) + # L1
-  geom_vline(xintercept=65536) + # L2
-  geom_vline(xintercept=3932160) # L3
+  geom_vline(xintercept=4096) + # L1
+  geom_vline(xintercept=32768) + # L2
+  geom_vline(xintercept=1966080) # L3
