@@ -44,19 +44,21 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 using namespace std;
 typedef int * Manna_Array;
 
-#define curandState curandStatePhilox4_32_10_t //fastest prng, tried XORWOW and MRG32k3a
+//fastest prng is XORWOW, default.
+//~ #define curandState curandStatePhilox4_32_10_t 	//not so slow
+//~ #define curandState curandStateMRG32k3a_t 		//slowest by far
 
-__global__ void seedinit(curandState *seed, int first_num){
+__device__ curandState seed[1];
+__device__ curandState rand_state[N];
+
+__global__ void seedinit(int first_num){ //190ms, not top priority
 	curand_init(first_num,0,0,seed);
-}
-
-__global__ void randinit(curandState *seed, curandState *rand_state){
-	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
-	curand_init(curand(seed),0,0,&rand_state[gtid]);
+	for(int i=1; i<N; i++) //must do it sequentially because of race conditions in curand(seed)
+		curand_init(curand(seed),0,0,rand_state+i);
 }
 
 __device__ static inline bool randbool(curandState *rand_state){
-	//~ return 1;
+	//~ return 1; //trick to fix behaviour
 	return 1&curand(rand_state);
 }
 
@@ -91,7 +93,7 @@ void imprimir_array(Manna_Array __restrict__ h)
 }
 #endif
 
-__global__ void desestabilizacion_inicial(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, unsigned int * __restrict__ slots_activos, curandState * __restrict__ rand_state)
+__global__ void desestabilizacion_inicial(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, unsigned int * __restrict__ slots_activos)
 {
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
 	
@@ -103,11 +105,14 @@ __global__ void desestabilizacion_inicial(Manna_Array __restrict__ h, Manna_Arra
 	}
 }
 
-__global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, unsigned int * __restrict__ slots_activos, curandState * __restrict__ rand_state)
+__global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, unsigned int * __restrict__ slots_activos)
 {
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
 	//~ unsigned int tid = threadIdx.x; // id hilo dentro del bloque
 	//~ unsigned int lane = tid & CUDA_WARP_MASK; // id hilo dentro del warp, aka lane
+	//~ uint warp = tid / CUDA_WARP_SIZE;  // warp dentro del bloque
+	//~ uint gwarp = gtid / CUDA_WARP_SIZE;  // Identificador global de warp
+	//~ uint bid = blockIdx.x;  // Identificador de bloque
 	
 	curandState *thread_state = &rand_state[gtid]; //doesn't get better if I use a local copy and then copy back
 	
@@ -141,15 +146,8 @@ int main(){
 	assert(N%BLOCK_SIZE==0);
 	
 	//random initialization
-	curandState *rand_state;
-	curandState *seed;
-
-	checkCudaErrors(cudaMalloc(&rand_state, N*sizeof(curandState)));
-	checkCudaErrors(cudaMalloc(&seed, sizeof(curandState)));
-	seedinit<<<1,1>>>(seed, time(NULL)); //initialize seed with some randomness
+	seedinit<<<1,1>>>(time(NULL)); //initialize a state per thread with some random seed
 	getLastCudaError("seedinit failed");
-	randinit<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(seed,rand_state); //initialize one state per thread based on previous random seed
-	getLastCudaError("randinit failed");
 
 	//slots
 	checkCudaErrors(cudaMalloc(&h, N*sizeof(int)));
@@ -172,7 +170,7 @@ int main(){
 
 	//create some chaos among slots
 	cout << "estado inicial desestabilizado de la pila de arena...";
-	desestabilizacion_inicial<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr,rand_state);
+	desestabilizacion_inicial<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
 	getLastCudaError("desestabilizacion failed");
 	actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
 	getLastCudaError("actualizar failed");
@@ -188,7 +186,7 @@ int main(){
 	unsigned int activity;
 	int t = 0;
 	do {
-		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr,rand_state);
+		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
 		getLastCudaError("descargar failed");
 		actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
 		getLastCudaError("actualizar failed");
