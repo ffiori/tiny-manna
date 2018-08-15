@@ -31,11 +31,10 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #include <cassert>
 
 // number of sites
-#define N (1024) //TODO: se rompe todo si compilás con -DN=123, cambiar de N a NSLOTS o algo así
-
+#define N (1024*1024) //TODO: se rompe todo si compilás con -DN=123, cambiar de N a NSLOTS o algo así
 #define SIZE (N * 4)
 
-#define BLOCK_SIZE 32
+#define BLOCK_SIZE 256
 
 #define DENSITY 0.8924
 
@@ -45,33 +44,20 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 using namespace std;
 typedef int * Manna_Array;
 
-#ifndef SEED
-#define SEED 0
-#endif
+#define curandState curandStatePhilox4_32_10_t //fastest prng, tried XORWOW and MRG32k3a
 
-/*
-void randinit() {
-	random_device rd;
-	generator = default_random_engine(SEED ? SEED : rd());
+__global__ void seedinit(curandState *seed, int first_num){
+	curand_init(first_num,0,0,seed);
 }
 
-static inline bool randbool() {
-	uniform_int_distribution<int> distribution(0,1);
-	return distribution(generator);
-}
-*/
-
-__device__ curandState_t *rand_state;
-
-__global__ void randinit(curandState_t *rand_state){
+__global__ void randinit(curandState *seed, curandState *rand_state){
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
-	curand_init(gtid,gtid,0,&rand_state[gtid]); //TODO put cool seed, not gtid
+	curand_init(curand(seed),0,0,&rand_state[gtid]);
 }
 
-__device__ bool randbool(){ //TODO needs fix
-	return 1;
-	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
-	return 1&curand(&rand_state[gtid]);
+__device__ static inline bool randbool(curandState *rand_state){
+	//~ return 1;
+	return 1&curand(rand_state);
 }
 
 // CONDICION INICIAL ---------------------------------------------------------------
@@ -105,35 +91,35 @@ void imprimir_array(Manna_Array __restrict__ h)
 }
 #endif
 
-__global__ void desestabilizacion_inicial(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, unsigned int * __restrict__ slots_activos)
+__global__ void desestabilizacion_inicial(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, unsigned int * __restrict__ slots_activos, curandState * __restrict__ rand_state)
 {
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
 	
 	if (h[gtid]) {
-		//~ int k = (gtid+2*randbool()-1+N)%N;
-		int k = (gtid+2*((gtid%3)%2)-1+N)%N; //trick to fix behavior
+		int k = (gtid+2*randbool(rand_state)-1+N)%N;
+		//~ int k = (gtid+2*((gtid%3)%2)-1+N)%N; //trick to fix behavior
 		atomicAdd(&dh[k], 1);
 		h[gtid] = 0;
 	}
 }
 
-__global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, unsigned int * __restrict__ slots_activos)
+__global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, unsigned int * __restrict__ slots_activos, curandState * __restrict__ rand_state)
 {
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
 	//~ unsigned int tid = threadIdx.x; // id hilo dentro del bloque
 	//~ unsigned int lane = tid & CUDA_WARP_MASK; // id hilo dentro del warp, aka lane
 	
-	unsigned int i = gtid;
-
+	curandState *thread_state = &rand_state[gtid]; //doesn't get better if I use a local copy and then copy back
+	
 	// si es activo lo descargo aleatoriamente
-	if (h[i] > 1) {
-		for (int j = 0; j < h[i]; ++j) {
-			int k = (i+2*randbool()-1+N)%N;
+	if (h[gtid] > 1) {
+		for (int j = 0; j < h[gtid]; ++j) {
+			int k = (gtid+2*randbool(thread_state)-1+N)%N;
 			atomicAdd(&dh[k], 1);
 		}
-		h[i] = 0;
+		h[gtid] = 0;
 	}
-	 
+	
 	if(gtid==0) *slots_activos=0;
 }
 
@@ -154,18 +140,27 @@ int main(){
 	ios::sync_with_stdio(0); cin.tie(0);
 	assert(N%BLOCK_SIZE==0);
 	
-	//~ randinit();
-	checkCudaErrors(cudaMalloc(&rand_state, N*sizeof(curandState_t)));
-	randinit<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(rand_state);
+	//random initialization
+	curandState *rand_state;
+	curandState *seed;
 
-	// nro granitos en cada sitio, y su update
+	checkCudaErrors(cudaMalloc(&rand_state, N*sizeof(curandState)));
+	checkCudaErrors(cudaMalloc(&seed, sizeof(curandState)));
+	seedinit<<<1,1>>>(seed, time(NULL)); //initialize seed with some randomness
+	getLastCudaError("seedinit failed");
+	randinit<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(seed,rand_state); //initialize one state per thread based on previous random seed
+	getLastCudaError("randinit failed");
+
+	//slots
 	checkCudaErrors(cudaMalloc(&h, N*sizeof(int)));
 	checkCudaErrors(cudaMalloc(&dh, N*sizeof(int)));
+	checkCudaErrors(cudaMemset(dh, 0, N*sizeof(int)));
 
-	//gets actual address in device (for example &slots_activos is garbage)
+	//gets actual address in device (&slots_activos is garbage)
 	unsigned int *slots_activos_addr;
 	cudaGetSymbolAddress((void **)&slots_activos_addr, slots_activos);
 
+	//initialize slots
 	cout << "estado inicial estable de la pila de arena...";
 	inicializacion<<<N/BLOCK_SIZE, BLOCK_SIZE>>>(h);
 	getLastCudaError("inicializacion failed");
@@ -175,8 +170,9 @@ int main(){
 	imprimir_array(h);
 	#endif
 
+	//create some chaos among slots
 	cout << "estado inicial desestabilizado de la pila de arena...";
-	desestabilizacion_inicial<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
+	desestabilizacion_inicial<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr,rand_state);
 	getLastCudaError("desestabilizacion failed");
 	actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
 	getLastCudaError("actualizar failed");
@@ -192,7 +188,7 @@ int main(){
 	unsigned int activity;
 	int t = 0;
 	do {
-		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
+		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr,rand_state);
 		getLastCudaError("descargar failed");
 		actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
 		getLastCudaError("actualizar failed");
@@ -207,5 +203,18 @@ int main(){
 
 	cout << "LISTO: " << ((activity>0)?("se acabo el tiempo\n\n"):("la actividad decayo a cero\n\n")); cout.flush();
 
+	//free everything
+	cudaFree(h);
+	cudaFree(dh);
+	cudaFree(rand_state);
+	cudaFree(seed);
+
 	return 0;
 }
+
+/*
+ * TODO:
+ * 		Try more work per thread. Change algorithm to get rid of many atomicAdd
+ * 		make N and BLOCK_SIZE defineable during compile time
+ * 		try normal distribution with: int curand_discrete(curandState_t *state, curandDiscreteDistribution_t discrete_distribution)
+ */
