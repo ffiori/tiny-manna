@@ -30,11 +30,6 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #include <random>
 #include <cassert>
 
-#include <thrust/host_vector.h>
-#include <thrust/count.h>
-#include <thrust/device_vector.h>
-
-
 // number of sites
 #define N (1024*1024) //TODO: se rompe todo si compilás con -DN=123, cambiar de N a NSLOTS o algo así
 #define SIZE (N * 4)
@@ -46,7 +41,7 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 // number of temporal steps
 #define NSTEPS 10000
 
-//~ using namespace std;
+using namespace std;
 typedef int * Manna_Array;
 
 //fastest prng is XORWOW, default.
@@ -119,21 +114,12 @@ __global__ void actualizar(Manna_Array __restrict__ h, Manna_Array __restrict__ 
 		atomicAdd(slots_activos, 1);
 }
 
-struct gtone
-{
-  __host__ __device__
-  bool operator()(const int &x)
-  {
-    return x > 1;
-  }
-};
-
 __device__ Manna_Array h,dh;
 __device__ unsigned int slots_activos;
 
 //===================================================================
 int main(){
-	std::ios::sync_with_stdio(0); std::cin.tie(0);
+	ios::sync_with_stdio(0); cin.tie(0);
 	assert(N%BLOCK_SIZE==0);
 	
 	//random initialization
@@ -150,39 +136,36 @@ int main(){
 	cudaGetSymbolAddress((void **)&slots_activos_addr, slots_activos);
 
 	//initialize slots
-	std::cout << "estado inicial estable de la pila de arena...";
+	cout << "estado inicial estable de la pila de arena...";
 	inicializacion<<<N/BLOCK_SIZE, BLOCK_SIZE>>>(h);
 	getLastCudaError("inicializacion failed");
-	std::cout << "LISTO\n";
+	cout << "LISTO\n";
 	
 	//create some chaos among slots
-	std::cout << "estado inicial desestabilizado de la pila de arena...";
+	cout << "estado inicial desestabilizado de la pila de arena...";
 	desestabilizacion_inicial<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh);
 	getLastCudaError("desestabilizacion failed");
-	std::swap(h,dh);
-	std::cout << "LISTO\n";
+	swap(h,dh);
+	cout << "LISTO\n";
 	
-	std::cout << "evolucion de la pila de arena..."; std::cout.flush();
+	cout << "evolucion de la pila de arena..."; cout.flush();
 
-	std::ofstream activity_out("activity.dat");
+	ofstream activity_out("activity.dat");
 	unsigned int activity;
 	int t = 0;
 	do {
 		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
 		getLastCudaError("descargar failed");
-		std::swap(h,dh);
-		//~ actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
-		//~ getLastCudaError("actualizar failed");
-		//~ checkCudaErrors(cudaMemcpyFromSymbol(&activity, slots_activos, sizeof(unsigned int)));
-		
-		thrust::device_ptr<int> thrust_h(h);
-		activity = thrust::count_if(thrust_h, thrust_h + N, gtone());
+		swap(h,dh);
+		actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
+		getLastCudaError("actualizar failed");
+		checkCudaErrors(cudaMemcpyFromSymbol(&activity, slots_activos, sizeof(unsigned int)));
 		
 		activity_out << activity << "\n";
 		++t;
 	} while(activity > 0 && t < NSTEPS); // si la actividad decae a cero, esto no evoluciona mas...
 
-	std::cout << "LISTO: " << ((activity>0)?("se acabo el tiempo\n\n"):("la actividad decayo a cero\n\n")); std::cout.flush();
+	cout << "LISTO: " << ((activity>0)?("se acabo el tiempo\n\n"):("la actividad decayo a cero\n\n")); cout.flush();
 
 	//free everything
 	cudaFree(h);
