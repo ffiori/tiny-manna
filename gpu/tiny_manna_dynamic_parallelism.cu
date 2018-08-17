@@ -93,6 +93,23 @@ void imprimir_array(Manna_Array __restrict__ h)
 }
 #endif
 
+__device__ void imprimir_array(Manna_Array __restrict__ h)
+{
+	int nrogranitos=0;
+	int nrogranitos_activos=0;
+
+	// esto dibuja los granitos en cada sitio y los cuenta
+	for(int i = 0; i < 10; ++i) {
+		//~ cout << h[i] << " ";
+		printf("%d ",h[i]);
+		nrogranitos += h[i];
+		nrogranitos_activos += (h[i]>1);
+	}
+	printf("\nHay %d granos en total\n",nrogranitos);
+	printf("De ellos %d activos\n",nrogranitos_activos);
+	printf("densidad obtenida es %f, mientras que la deseada era %f\n\n",nrogranitos*1.0/N,DENSITY);
+}
+
 __global__ void desestabilizacion_inicial(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 {
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
@@ -141,8 +158,32 @@ __global__ void actualizar(Manna_Array __restrict__ h, Manna_Array __restrict__ 
 		atomicAdd(slots_activos, 1);
 }
 
-__device__ Manna_Array h,dh;
 __device__ unsigned int slots_activos;
+/*
+Dynamic parallelism:
+When a parent thread block launches a child grid, the child is not guaranteed to begin
+execution until the parent thread block reaches an explicit synchronization point (e.g.
+cudaDeviceSynchronize()).
+*/
+__global__ void run_manna(unsigned int *activity, Manna_Array h, Manna_Array dh) {
+	int t = 0;
+	do {
+		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,&slots_activos);
+		Manna_Array tmp = h;
+		h = dh;
+		dh = tmp;
+		actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,&slots_activos);
+
+		cudaDeviceSynchronize();
+
+		activity[t] = slots_activos;
+		++t;
+	} while(slots_activos > 0 && t < NSTEPS); // si la actividad decae a cero, esto no evoluciona mas...
+}
+
+__device__ Manna_Array h,dh;
+__device__ unsigned int *activity;
+unsigned int activity_host[NSTEPS];
 
 //===================================================================
 int main(){
@@ -156,11 +197,12 @@ int main(){
 	//slots
 	checkCudaErrors(cudaMalloc(&h, N*sizeof(int)));
 	checkCudaErrors(cudaMalloc(&dh, N*sizeof(int)));
+	checkCudaErrors(cudaMalloc(&activity, NSTEPS*sizeof(unsigned int)));
 	checkCudaErrors(cudaMemset(dh, 0, N*sizeof(int)));
 
 	//gets actual address in device (&slots_activos is garbage)
-	unsigned int *slots_activos_addr;
-	cudaGetSymbolAddress((void **)&slots_activos_addr, slots_activos);
+	//~ unsigned int *slots_activos_addr;
+	//~ cudaGetSymbolAddress((void **)&slots_activos_addr, slots_activos);
 
 	//initialize slots
 	cout << "estado inicial estable de la pila de arena...";
@@ -187,33 +229,29 @@ int main(){
 	cout << "evolucion de la pila de arena..."; cout.flush();
 
 	ofstream activity_out("activity.dat");
-	unsigned int activity;
-	int t = 0;
-	do {
-		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
-		getLastCudaError("descargar failed");
-		swap(h,dh);
-		actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
-		getLastCudaError("actualizar failed");
-		checkCudaErrors(cudaMemcpyFromSymbol(&activity, slots_activos, sizeof(unsigned int)));
-		
-		activity_out << activity << "\n";
-		#ifdef DEBUG
-		imprimir_array(h);
-		#endif
-		++t;
-	} while(activity > 0 && t < NSTEPS); // si la actividad decae a cero, esto no evoluciona mas...
 
-	cout << "LISTO: " << ((activity>0)?("se acabo el tiempo\n\n"):("la actividad decayo a cero\n\n")); cout.flush();
+	run_manna<<<1,1>>>(activity,h,dh);
+	checkCudaErrors(cudaMemcpy(activity_host, activity, sizeof(activity_host), cudaMemcpyDeviceToHost));
+
+	bool timeout = true;
+	for (int i = 0; i < NSTEPS; i++) {
+		activity_out << activity_host[i] << "\n";
+		if (!activity_host[i]) { timeout = false; break; }
+	}
+
+	cout << "LISTO: " << ((timeout)?("se acabo el tiempo\n\n"):("la actividad decayo a cero\n\n")); cout.flush();
 
 	//free everything
 	cudaFree(h);
 	cudaFree(dh);
+	cudaFree(activity);
 
 	return 0;
 }
 
 /*
  * TODO:
+ * 		Try more work per thread. Change algorithm to get rid of many atomicAdd
  * 		make N and BLOCK_SIZE defineable during compile time
+ * 		try normal distribution with: int curand_discrete(curandState_t *state, curandDiscreteDistribution_t discrete_distribution)
  */
