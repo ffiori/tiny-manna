@@ -30,11 +30,6 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #include <random>
 #include <cassert>
 
-#include <thrust/host_vector.h>
-#include <thrust/count.h>
-#include <thrust/device_vector.h>
-
-
 // number of sites
 #define N (1024*1024) //TODO: se rompe todo si compilás con -DN=123, cambiar de N a NSLOTS o algo así
 #define SIZE (N * 4)
@@ -46,7 +41,7 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 // number of temporal steps
 #define NSTEPS 10000
 
-//~ using namespace std;
+using namespace std;
 typedef int * Manna_Array;
 
 //fastest prng is XORWOW, default.
@@ -56,7 +51,7 @@ typedef int * Manna_Array;
 __device__ curandState seed[1];
 __device__ curandState rand_state[N];
 
-__global__ void seedinit(int first_num){ //190ms, not top priority
+__global__ void seedinit(int first_num){ //60ms, not top priority
 	curand_init(first_num,0,0,seed);
 	for(int i=0; i<N; i++) //must do it sequentially because of race conditions in curand(seed)
 		curand_init(curand(seed),0,0,&rand_state[i]);
@@ -90,14 +85,13 @@ __global__ void desestabilizacion_inicial(Manna_Array __restrict__ h, Manna_Arra
 	}
 }
 
-__global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, unsigned int * __restrict__ slots_activos)
+__device__ unsigned int *activity;
+__device__ unsigned int slots_activos;
+unsigned int activity_host[NSTEPS+1];
+
+__global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, int t, unsigned int *activity)
 {
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
-	//~ unsigned int tid = threadIdx.x; // id hilo dentro del bloque
-	//~ unsigned int lane = tid & CUDA_WARP_MASK; // id hilo dentro del warp, aka lane
-	//~ uint warp = tid / CUDA_WARP_SIZE;  // warp dentro del bloque
-	//~ uint gwarp = gtid / CUDA_WARP_SIZE;  // Identificador global de warp
-	//~ uint bid = blockIdx.x;  // Identificador de bloque
 	
 	curandState *thread_state = &rand_state[gtid]; //doesn't get better if I use a local copy and then copy back
 	
@@ -109,31 +103,49 @@ __global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ d
 	} else atomicAdd(&dh[gtid], h[gtid]);
 	h[gtid] = 0;
 
-	if(gtid==0) *slots_activos=0;
+	if(gtid==0) {
+		activity[t] = slots_activos;
+		slots_activos=0;
+	}
 }
 
-__global__ void actualizar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, unsigned int * __restrict__ slots_activos)
+template <unsigned int blockSize>
+__global__ void reduce(int *h)
 {
-	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
-	if(h[gtid]>1)
-		atomicAdd(slots_activos, 1);
-}
+	__shared__ int sdata[blockSize];
+	unsigned int tid = threadIdx.x;
+	unsigned int i = blockIdx.x*(blockSize*2) + tid;
+	unsigned int gridSize = blockSize*2*gridDim.x;
 
-struct gtone
-{
-  __host__ __device__
-  bool operator()(const int &x)
-  {
-    return x > 1;
-  }
-};
+	sdata[tid] = 0;
+
+	while (i < N) { sdata[tid] += (h[i]>1) + (h[i+blockSize]>1); i += gridSize; }
+	
+	__syncthreads();
+
+	if (blockSize >= 512) { if (tid < 256) { sdata[tid] += sdata[tid + 256]; } __syncthreads(); }
+	if (blockSize >= 256) { if (tid < 128) { sdata[tid] += sdata[tid + 128]; } __syncthreads(); }
+	if (blockSize >= 128) { if (tid < 64) { sdata[tid] += sdata[tid + 64]; } __syncthreads(); }
+
+	if (tid < 32) {
+		if (blockSize >= 64) sdata[tid] += sdata[tid + 32];
+		if (blockSize >= 32) sdata[tid] += sdata[tid + 16];
+		if (blockSize >= 16) sdata[tid] += sdata[tid + 8];
+		if (blockSize >= 8) sdata[tid] += sdata[tid + 4];
+		if (blockSize >= 4) sdata[tid] += sdata[tid + 2];
+		if (blockSize >= 2) sdata[tid] += sdata[tid + 1];
+	}
+	
+	if (tid == 0) {
+		atomicAdd(&slots_activos,sdata[0]);
+	}
+}
 
 __device__ Manna_Array h,dh;
-__device__ unsigned int slots_activos;
 
 //===================================================================
 int main(){
-	std::ios::sync_with_stdio(0); std::cin.tie(0);
+	ios::sync_with_stdio(0); cin.tie(0);
 	assert(N%BLOCK_SIZE==0);
 	
 	//random initialization
@@ -143,6 +155,7 @@ int main(){
 	//slots
 	checkCudaErrors(cudaMalloc(&h, N*sizeof(int)));
 	checkCudaErrors(cudaMalloc(&dh, N*sizeof(int)));
+	checkCudaErrors(cudaMalloc(&activity, (NSTEPS+1)*sizeof(unsigned int)));
 	checkCudaErrors(cudaMemset(dh, 0, N*sizeof(int)));
 
 	//gets actual address in device (&slots_activos is garbage)
@@ -150,43 +163,46 @@ int main(){
 	cudaGetSymbolAddress((void **)&slots_activos_addr, slots_activos);
 
 	//initialize slots
-	std::cout << "estado inicial estable de la pila de arena...";
+	cout << "estado inicial estable de la pila de arena...";
 	inicializacion<<<N/BLOCK_SIZE, BLOCK_SIZE>>>(h);
 	getLastCudaError("inicializacion failed");
-	std::cout << "LISTO\n";
+	cout << "LISTO\n";
 	
 	//create some chaos among slots
-	std::cout << "estado inicial desestabilizado de la pila de arena...";
+	cout << "estado inicial desestabilizado de la pila de arena...";
 	desestabilizacion_inicial<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh);
 	getLastCudaError("desestabilizacion failed");
-	std::swap(h,dh);
-	std::cout << "LISTO\n";
+	swap(h,dh);
+	cout << "LISTO\n";
 	
-	std::cout << "evolucion de la pila de arena..."; std::cout.flush();
+	cout << "evolucion de la pila de arena..."; cout.flush();
 
-	std::ofstream activity_out("activity.dat");
-	unsigned int activity;
+	ofstream activity_out("activity.dat");
 	int t = 0;
 	do {
-		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
+		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh, t, activity);
 		getLastCudaError("descargar failed");
-		std::swap(h,dh);
-		//~ actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,slots_activos_addr);
-		//~ getLastCudaError("actualizar failed");
-		//~ checkCudaErrors(cudaMemcpyFromSymbol(&activity, slots_activos, sizeof(unsigned int)));
-		
-		thrust::device_ptr<int> thrust_h(h);
-		activity = thrust::count_if(thrust_h, thrust_h + N, gtone());
-		
-		activity_out << activity << "\n";
+		swap(h,dh);
+		reduce<BLOCK_SIZE><<< 128, BLOCK_SIZE >>>(h);
+		getLastCudaError("reduce failed");
 		++t;
-	} while(activity > 0 && t < NSTEPS); // si la actividad decae a cero, esto no evoluciona mas...
+	} while(t < NSTEPS);
+	
+	checkCudaErrors(cudaMemcpy(activity_host, activity, sizeof(activity_host), cudaMemcpyDeviceToHost));
+	checkCudaErrors(cudaMemcpy(&activity_host[NSTEPS], slots_activos_addr, sizeof(unsigned int), cudaMemcpyDeviceToHost));
 
-	std::cout << "LISTO: " << ((activity>0)?("se acabo el tiempo\n\n"):("la actividad decayo a cero\n\n")); std::cout.flush();
+	bool timeout = true;
+	for (int i = 1; i <= NSTEPS; i++) {
+		activity_out << activity_host[i] << "\n";
+		if (!activity_host[i]) { timeout = false; cout << "En i " << i << endl; break;}
+	}
 
+	cout << "LISTO: " << ((timeout)?("se acabo el tiempo\n\n"):("la actividad decayo a cero\n\n")); cout.flush();
+	
 	//free everything
 	cudaFree(h);
 	cudaFree(dh);
+	cudaFree(activity);
 
 	return 0;
 }
@@ -194,4 +210,20 @@ int main(){
 /*
  * TODO:
  * 		make N and BLOCK_SIZE defineable during compile time
+ */
+
+/* log:
+ * 		primera versión mejor que openmp (~2.8s en titan x)
+ * 		no usar dh en actualizar, zerear h en descargar, swap entre descargar y actualizar
+ * 		hacer un solo memcpy grande
+ * 		mejora muuuy poco hacer un reduce polenta en vez del actualizar trivial. Mejora más en k40 que en titan
+ * 		
+ * no mejora:
+ * 		usar thrust para reduction
+ * 		usar otros random de curand, de librerías externas, o aproximar una binomial de una normal
+ * 		usar dynamic parallelism para hacer un memcpy al final y pasar todo el control al gpu. Barreras de sincronización necesarias entre kernels, empeora.
+ * 		usar menos atomicAdd agrandando el trabajo por thread
+ * 
+ * por probar:
+ * 		memcpy asíncronos y lanzar kernels en el medio (no muy útil, memcpy tarda 60ms)		
  */
