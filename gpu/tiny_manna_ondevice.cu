@@ -73,26 +73,6 @@ __global__ void inicializacion(Manna_Array __restrict__ h)
 	h[i] = (int)((i+1)*DENSITY)-(int)(i*DENSITY);
 }
 
-#ifdef DEBUG
-void imprimir_array(Manna_Array __restrict__ h)
-{
-	int nrogranitos=0;
-	int nrogranitos_activos=0;
-
-	// esto dibuja los granitos en cada sitio y los cuenta
-	for(int i = 0; i < N; ++i) {
-		cout << h[i] << " ";
-		nrogranitos += h[i];
-		nrogranitos_activos += (h[i]>1);
-	}
-	cout << "\n";
-	cout << "Hay " << nrogranitos << " granitos en total\n";
-	cout << "De ellos " << nrogranitos_activos << " son activos\n";
-	cout << "La densidad obtenida es " << nrogranitos*1.0/N;
-	cout << ", mientras que la deseada era " << DENSITY << "\n\n";
-}
-#endif
-
 __global__ void desestabilizacion_inicial(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
 {
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
@@ -134,13 +114,6 @@ __global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ d
 	}
 }
 
-__global__ void old_actualizar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh)
-{
-	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
-	h[gtid]+=dh[gtid];
-	dh[gtid]=0; 	//zeroes dh array
-}
-
 __global__ void actualizar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, int t)
 {
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
@@ -175,22 +148,13 @@ int main(){
 	getLastCudaError("inicializacion failed");
 	cout << "LISTO\n";
 	
-	#ifdef DEBUG
-	imprimir_array(h);
-	#endif
-
 	//create some chaos among slots
 	cout << "estado inicial desestabilizado de la pila de arena...";
 	desestabilizacion_inicial<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh);
 	getLastCudaError("desestabilizacion failed");
-	old_actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh);
-	getLastCudaError("actualizar failed");
+	swap(h,dh);
 	cout << "LISTO\n";
 	
-	#ifdef DEBUG
-	imprimir_array(h);
-	#endif
-
 	cout << "evolucion de la pila de arena..."; cout.flush();
 
 	ofstream activity_out("activity.dat");

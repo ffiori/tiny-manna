@@ -6,7 +6,7 @@ CXXFLAGS+= -rdc=true -lcudadevrt
 #~ CXXFLAGS+= -G -lineinfo # para debuguear con cuda-memcheck
 LDFLAGS=
 
-TARGETS=tiny_manna
+TARGETS=tiny_manna tiny_manna_ondevice
 
 all: $(TARGETS)
 
