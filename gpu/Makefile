@@ -1,13 +1,16 @@
 CXX=nvcc
-CXXFLAGS=-std=c++11 -arch=sm_35 --ptxas-options=-v --compiler-options "-Ofast -Wall" #-arch=sm_52 #for titan x
-#~ CXXFLAGS=-std=c++11 -arch=sm_35 --ptxas-options=-v -G -lineinfo # para debuguear con cuda-memcheck
+CXXFLAGS=-std=c++11 --ptxas-options=-v --compiler-options "-Ofast -Wall"
+CXXFLAGS+= -gencode=arch=compute_35,code=sm_35 # K40
+CXXFLAGS+= -gencode=arch=compute_52,code=sm_52 # Titan X
+CXXFLAGS+= -rdc=true -lcudadevrt
+#~ CXXFLAGS+= -G -lineinfo # para debuguear con cuda-memcheck
 LDFLAGS=
 
 TARGETS=tiny_manna
 
 all: $(TARGETS)
 
-tiny_manna: tiny_manna.cu
+%: %.cu
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 .PHONY: clean all
