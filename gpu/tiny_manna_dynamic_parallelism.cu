@@ -73,26 +73,6 @@ __global__ void inicializacion(Manna_Array __restrict__ h)
 	h[i] = (int)((i+1)*DENSITY)-(int)(i*DENSITY);
 }
 
-#ifdef DEBUG
-void imprimir_array(Manna_Array __restrict__ h)
-{
-	int nrogranitos=0;
-	int nrogranitos_activos=0;
-
-	// esto dibuja los granitos en cada sitio y los cuenta
-	for(int i = 0; i < N; ++i) {
-		cout << h[i] << " ";
-		nrogranitos += h[i];
-		nrogranitos_activos += (h[i]>1);
-	}
-	cout << "\n";
-	cout << "Hay " << nrogranitos << " granitos en total\n";
-	cout << "De ellos " << nrogranitos_activos << " son activos\n";
-	cout << "La densidad obtenida es " << nrogranitos*1.0/N;
-	cout << ", mientras que la deseada era " << DENSITY << "\n\n";
-}
-#endif
-
 __device__ void imprimir_array(Manna_Array __restrict__ h)
 {
 	int nrogranitos=0;
@@ -100,7 +80,6 @@ __device__ void imprimir_array(Manna_Array __restrict__ h)
 
 	// esto dibuja los granitos en cada sitio y los cuenta
 	for(int i = 0; i < 10; ++i) {
-		//~ cout << h[i] << " ";
 		printf("%d ",h[i]);
 		nrogranitos += h[i];
 		nrogranitos_activos += (h[i]>1);
@@ -168,17 +147,17 @@ cudaDeviceSynchronize()).
 __global__ void run_manna(unsigned int *activity, Manna_Array h, Manna_Array dh) {
 	int t = 0;
 	do {
-		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,&slots_activos);
+		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,&activity[t]);
 		Manna_Array tmp = h;
 		h = dh;
 		dh = tmp;
-		actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,&slots_activos);
+		actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,&activity[t]);
 
-		cudaDeviceSynchronize();
-
-		activity[t] = slots_activos;
+		//~ cudaDeviceSynchronize();
+		//~ activity[t] = slots_activos;
 		++t;
-	} while(slots_activos > 0 && t < NSTEPS); // si la actividad decae a cero, esto no evoluciona mas...
+	//~ } while(slots_activos > 0 && t < NSTEPS); // si la actividad decae a cero, esto no evoluciona mas...
+	} while(t < NSTEPS); // ahora corre todos los NSTEPS sí o sí
 }
 
 __device__ Manna_Array h,dh;
@@ -199,10 +178,6 @@ int main(){
 	checkCudaErrors(cudaMalloc(&dh, N*sizeof(int)));
 	checkCudaErrors(cudaMalloc(&activity, NSTEPS*sizeof(unsigned int)));
 	checkCudaErrors(cudaMemset(dh, 0, N*sizeof(int)));
-
-	//gets actual address in device (&slots_activos is garbage)
-	//~ unsigned int *slots_activos_addr;
-	//~ cudaGetSymbolAddress((void **)&slots_activos_addr, slots_activos);
 
 	//initialize slots
 	cout << "estado inicial estable de la pila de arena...";
@@ -248,10 +223,3 @@ int main(){
 
 	return 0;
 }
-
-/*
- * TODO:
- * 		Try more work per thread. Change algorithm to get rid of many atomicAdd
- * 		make N and BLOCK_SIZE defineable during compile time
- * 		try normal distribution with: int curand_discrete(curandState_t *state, curandDiscreteDistribution_t discrete_distribution)
- */
