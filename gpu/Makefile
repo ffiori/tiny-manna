@@ -6,12 +6,15 @@ CXXFLAGS+= -rdc=true -lcudadevrt # dynamic parallelism
 #~ CXXFLAGS+= -G -lineinfo # para debuguear con cuda-memcheck
 LDFLAGS=
 
-TARGETS=tiny_manna_ondevice tiny_manna_ondevice_reduce
+# Default N
+N?=1048576
+
+TARGETS=tiny_manna_ondevice_reduce
 
 all: $(TARGETS)
 
 %: %.cu
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS) -DNSLOTS=$(N)
 
 .PHONY: clean all
 

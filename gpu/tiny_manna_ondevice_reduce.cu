@@ -31,7 +31,12 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #include <cassert>
 
 // number of sites
-#define N (1024*1024) //TODO: se rompe todo si compilás con -DN=123, cambiar de N a NSLOTS o algo así
+#ifdef NSLOTS
+#define N NSLOTS
+#else
+#define N (1024*1024)
+#endif
+
 #define SIZE (N * 4)
 
 #define BLOCK_SIZE 256
@@ -89,9 +94,8 @@ __device__ unsigned int *activity;
 __device__ unsigned int slots_activos;
 unsigned int activity_host[NSTEPS+1];
 
-__global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, int t, unsigned int *activity)
+__global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, int t, unsigned int * __restrict__ activity)
 {
-	#pragma GCC ivdep
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
 	
 	curandState *thread_state = &rand_state[gtid]; //doesn't get better if I use a local copy and then copy back
@@ -181,7 +185,7 @@ int main(){
 	ofstream activity_out("activity.dat");
 	int t = 0;
 	do {
-		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh, t, activity);
+		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,t,activity);
 		getLastCudaError("descargar failed");
 		swap(h,dh);
 		reduce<BLOCK_SIZE><<< 128, BLOCK_SIZE >>>(h);

@@ -31,7 +31,12 @@ Notar que si la densidad de granitos, [Suma_i h[i]/N] es muy baja, la actividad 
 #include <cassert>
 
 // number of sites
-#define N (1024*1024) //TODO: se rompe todo si compilás con -DN=123, cambiar de N a NSLOTS o algo así
+#ifdef NSLOTS
+#define N NSLOTS
+#else
+#define N (1024*1024)
+#endif
+
 #define SIZE (N * 4)
 
 #define BLOCK_SIZE 256
@@ -51,7 +56,7 @@ typedef int * Manna_Array;
 __device__ curandState seed[1];
 __device__ curandState rand_state[N];
 
-__global__ void seedinit(int first_num){ //190ms, not top priority
+__global__ void seedinit(int first_num){ //60ms, not top priority
 	curand_init(first_num,0,0,seed);
 	for(int i=0; i<N; i++) //must do it sequentially because of race conditions in curand(seed)
 		curand_init(curand(seed),0,0,&rand_state[i]);
