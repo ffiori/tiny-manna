@@ -91,6 +91,7 @@ unsigned int activity_host[NSTEPS+1];
 
 __global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, int t, unsigned int *activity)
 {
+	#pragma GCC ivdep
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
 	
 	curandState *thread_state = &rand_state[gtid]; //doesn't get better if I use a local copy and then copy back

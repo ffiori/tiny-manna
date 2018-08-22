@@ -89,8 +89,9 @@ __device__ unsigned int *activity;
 __device__ unsigned int slots_activos;
 unsigned int activity_host[NSTEPS+1];
 
-__global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, int t, unsigned int *activity)
+__global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, int t, unsigned int * __restrict__ activity)
 {
+	#pragma GCC ivdep
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
 	//~ unsigned int tid = threadIdx.x; // id hilo dentro del bloque
 	//~ unsigned int lane = tid & CUDA_WARP_MASK; // id hilo dentro del warp, aka lane
@@ -98,9 +99,8 @@ __global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ d
 	//~ uint gwarp = gtid / CUDA_WARP_SIZE;  // Identificador global de warp
 	//~ uint bid = blockIdx.x;  // Identificador de bloque
 	
-	curandState *thread_state = &rand_state[gtid]; //doesn't get better if I use a local copy and then copy back
-	
 	if (h[gtid] > 1) {
+		curandState *thread_state = &rand_state[gtid]; //doesn't get better if I use a local copy and then copy back
 		for (int j = 0; j < h[gtid]; ++j) {
 			int k = (gtid+2*randbool(thread_state)-1+N)%N;
 			atomicAdd(&dh[k], 1);
@@ -114,7 +114,7 @@ __global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ d
 	}
 }
 
-__global__ void actualizar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, int t)
+__global__ void actualizar(Manna_Array __restrict__ h)
 {
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
 	if(h[gtid]>1)
@@ -160,10 +160,10 @@ int main(){
 	ofstream activity_out("activity.dat");
 	int t = 0;
 	do {
-		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh, t, activity);
+		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,t,activity);
 		getLastCudaError("descargar failed");
 		swap(h,dh);
-		actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh, t);
+		actualizar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h);
 		getLastCudaError("actualizar failed");
 		++t;
 	} while(t < NSTEPS);
