@@ -1,29 +1,32 @@
 #!/bin/bash
 
-MANNA_BINARY="./tiny_manna"
-SUFFIX="-gpu"
+MANNA_BINARY="./tiny_manna_ondevice_reduce"
+SUFFIX="-gpu-ondevice-reduce-titanx"
 
 file="results$SUFFIX.txt"
 runs=10
-start=1024             #size=4KB
-end=$(( 1024*1024*8 )) #size=32MB
-n=$start #cantidad de ints del array (o sea, size = N*4 bytes)
+start=1024             #size=8KB
+end=$(( 1024*1024*8 )) #size=64MB
+n=$start #cantidad de ints del array
 
 echo "***************** NEW TEST BEGINS! *****************" >> $file
 
 while [ $n -le $end ]
 do
-	size=$(($n*4/1024))
-		echo "***************** Tamaño " $size " KBytes. N vale (slots): " $n " *****************" >> $file
-		make clean
-		make N=$n
+	size=$(($n*8/1024))
+	echo "***************** Tamaño " $size " KBytes. N vale (slots): " $n " *****************" >> $file
+	make clean
+	make N=$n
 
-		#execute
-		perf stat -r $runs -e instructions,cycles,cycle_activity.cycles_no_execute,cache-references,cache-misses $MANNA_BINARY >> $file 2>&1
-		#nvcc -gencode arch=compute_35,code=sm_35 -gencode arch=compute_52,code=sm_52 (...opciones de siempre...) para que corra con K40 o Titan X
+	#execute
+	for i in $(seq $runs)
+	do
+		CUDA_VISIBLE_DEVICES=0 taskset -c 0-5 nvprof $MANNA_BINARY >> $file 2>&1
+	done
 
+	#~ ver de poner otras métricas como nvprof --metrics ipc,achieved_occupancy,global_replay_overhead
 
-		n=$(($n*2))
+	n=$(($n*2))
 done
 
 echo "********************************************************************" >> $file

@@ -134,11 +134,17 @@ __global__ void reduce(int *h)
 
 	if (tid < 32) {
 		if (blockSize >= 64) sdata[tid] += sdata[tid + 32];
+		__syncthreads();
 		if (blockSize >= 32) sdata[tid] += sdata[tid + 16];
+		__syncthreads();
 		if (blockSize >= 16) sdata[tid] += sdata[tid + 8];
+		__syncthreads();
 		if (blockSize >= 8) sdata[tid] += sdata[tid + 4];
+		__syncthreads();
 		if (blockSize >= 4) sdata[tid] += sdata[tid + 2];
+		__syncthreads();
 		if (blockSize >= 2) sdata[tid] += sdata[tid + 1];
+		__syncthreads();
 	}
 	
 	if (tid == 0) {
@@ -188,7 +194,7 @@ int main(){
 		descargar<<< N/BLOCK_SIZE, BLOCK_SIZE >>>(h,dh,t,activity);
 		getLastCudaError("descargar failed");
 		swap(h,dh);
-		reduce<BLOCK_SIZE><<< 128, BLOCK_SIZE >>>(h);
+		reduce<BLOCK_SIZE><<< min(128,N/BLOCK_SIZE), BLOCK_SIZE >>>(h);
 		getLastCudaError("reduce failed");
 		++t;
 	} while(t < NSTEPS);
@@ -211,11 +217,6 @@ int main(){
 
 	return 0;
 }
-
-/*
- * TODO:
- * 		make N and BLOCK_SIZE defineable during compile time
- */
 
 /* log:
  * 		primera versión mejor que openmp (~2.8s en titan x)

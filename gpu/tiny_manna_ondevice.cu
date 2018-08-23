@@ -96,7 +96,6 @@ unsigned int activity_host[NSTEPS+1];
 
 __global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, int t, unsigned int * __restrict__ activity)
 {
-	#pragma GCC ivdep
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
 	//~ unsigned int tid = threadIdx.x; // id hilo dentro del bloque
 	//~ unsigned int lane = tid & CUDA_WARP_MASK; // id hilo dentro del warp, aka lane
