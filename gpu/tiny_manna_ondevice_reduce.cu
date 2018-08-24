@@ -100,12 +100,18 @@ __global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ d
 	
 	curandState *thread_state = &rand_state[gtid]; //doesn't get better if I use a local copy and then copy back
 	
-	if (h[gtid] > 1) {
-		for (int j = 0; j < h[gtid]; ++j) {
-			int k = (gtid+2*randbool(thread_state)-1+N)%N;
-			atomicAdd(&dh[k], 1);
-		}
-	} else atomicAdd(&dh[gtid], h[gtid]);
+	int granos = h[gtid];
+	if (granos > 1) {
+		do{
+			int left=curand(thread_state)&((1<<granos)-1);
+			//~ int left = (1<<granos)-1; //trick to fix behaviour
+			left = __popc(left);
+			atomicAdd(&dh[(gtid-1+N)%N], left);
+			atomicAdd(&dh[(gtid+1)%N], min(32,granos)-left);
+			granos-=32;
+		} while(granos>0);
+	}
+	else atomicAdd(&dh[gtid], granos);
 	h[gtid] = 0;
 
 	if(gtid==0) {

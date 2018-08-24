@@ -18,4 +18,6 @@ popd
 
 export PATH="$TMPGCC:$PATH"
 
-exec /bin/bash
+#~ exec /bin/bash
+
+# hacerle source para ejecutar nvcc 9.2 con gcc 7.3

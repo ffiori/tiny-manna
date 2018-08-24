@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MANNA_BINARY="./tiny_manna_ondevice_reduce"
-SUFFIX="-gpu-ondevice-reduce-titanx"
+SUFFIX="-gpu-titanx"
 
 file="results$SUFFIX.txt"
 runs=10
@@ -19,10 +19,10 @@ do
 	make N=$n
 
 	#execute
-	for i in $(seq $runs)
-	do
-		CUDA_VISIBLE_DEVICES=0 taskset -c 0-5 nvprof $MANNA_BINARY >> $file 2>&1
-	done
+	#~ for i in $(seq $runs)
+	#~ do
+		CUDA_VISIBLE_DEVICES=0 taskset -c 0-5 perf stat -r $runs $MANNA_BINARY >> $file 2>&1
+	#~ done
 
 	#~ ver de poner otras métricas como nvprof --metrics ipc,achieved_occupancy,global_replay_overhead
 
