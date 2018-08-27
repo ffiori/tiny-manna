@@ -90,29 +90,51 @@ __global__ void desestabilizacion_inicial(Manna_Array __restrict__ h, Manna_Arra
 	}
 }
 
-__device__ unsigned int *activity;
 __device__ unsigned int slots_activos;
 unsigned int activity_host[NSTEPS+1];
 
 __global__ void descargar(Manna_Array __restrict__ h, Manna_Array __restrict__ dh, int t, unsigned int * __restrict__ activity)
 {
 	unsigned int gtid = blockIdx.x*blockDim.x + threadIdx.x;
+	unsigned int lane = threadIdx.x & CUDA_WARP_MASK; // id hilo dentro del warp, aka lane
 	
 	curandState *thread_state = &rand_state[gtid]; //doesn't get better if I use a local copy and then copy back
 	
 	int granos = h[gtid];
+	int left=0, right=0;
 	if (granos > 1) {
 		do{
-			int left=curand(thread_state)&((1<<granos)-1);
-			//~ int left = (1<<granos)-1; //trick to fix behaviour
-			left = __popc(left);
-			atomicAdd(&dh[(gtid-1+N)%N], left);
-			atomicAdd(&dh[(gtid+1)%N], min(32,granos)-left);
-			granos-=32;
-		} while(granos>0);
+			int min32 = min(32,granos);
+			int random_value = curand(thread_state)&((1<<granos)-1);
+			//~ int random_value = (1<<granos)-1; //trick to fix behaviour
+			random_value = __popc(random_value);
+			left += random_value;
+			right += min32-random_value;
+			granos -= min32;
+		} while(granos);
 	}
-	else atomicAdd(&dh[gtid], granos);
-	h[gtid] = 0;
+
+	int fallen_here = granos; //granos para este slot
+	int froml = __shfl_up_sync(0xffffffff,right,1);  //grains coming from left
+	int fromr = __shfl_down_sync(0xffffffff,left,1); //grains coming from right
+
+	//borders write off the lane, need protection
+	if(lane==0) {
+		atomicAdd(&dh[(gtid-1+N)%N], left);
+		fallen_here += fromr;
+		atomicAdd(&dh[gtid], fallen_here);
+	}
+	else if(lane==31) {
+		atomicAdd(&dh[(gtid+1)%N], right);
+		fallen_here += froml;
+		atomicAdd(&dh[gtid], fallen_here);
+	}
+	else { //not border
+		fallen_here += froml+fromr;
+		dh[gtid] = fallen_here;
+	}
+
+	h[gtid] = 0; //zero h array
 
 	if(gtid==0) {
 		activity[t] = slots_activos;
@@ -158,8 +180,6 @@ __global__ void reduce(int *h)
 	}
 }
 
-__device__ Manna_Array h,dh;
-
 //===================================================================
 int main(){
 	ios::sync_with_stdio(0); cin.tie(0);
@@ -170,6 +190,8 @@ int main(){
 	getLastCudaError("seedinit failed");
 
 	//slots
+	Manna_Array h,dh;
+	unsigned int *activity;
 	checkCudaErrors(cudaMalloc(&h, N*sizeof(int)));
 	checkCudaErrors(cudaMalloc(&dh, N*sizeof(int)));
 	checkCudaErrors(cudaMalloc(&activity, (NSTEPS+1)*sizeof(unsigned int)));
