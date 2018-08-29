@@ -1,0 +1,772 @@
+***************** NEW TEST BEGINS! *****************
+***************** Tamaño  8  KBytes. N vale (slots):  1024  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+        848.805729      task-clock (msec)         #    0.887 CPUs utilized            ( +-  0.84% )
+                54      context-switches          #    0.063 K/sec                    ( +-  3.75% )
+                 0      cpu-migrations            #    0.000 K/sec                    ( +- 71.15% )
+              1889      page-faults               #    0.002 M/sec                    ( +-  0.45% )
+        2465745038      cycles                    #    2.905 GHz                      ( +-  0.24% )
+        1734374203      instructions              #    0.70  insn per cycle           ( +-  0.09% )
+         428276304      branches                  #  504.563 M/sec                    ( +-  0.09% )
+           3075528      branch-misses             #    0.72% of all branches          ( +-  0.18% )
+
+       0.956436581 seconds time elapsed                                          ( +-  0.82% )
+
+***************** Tamaño  16  KBytes. N vale (slots):  2048  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+        866.488393      task-clock (msec)         #    0.891 CPUs utilized            ( +-  0.62% )
+                55      context-switches          #    0.063 K/sec                    ( +-  1.90% )
+                 0      cpu-migrations            #    0.000 K/sec                    ( +- 66.67% )
+              1887      page-faults               #    0.002 M/sec                    ( +-  0.39% )
+        2446097471      cycles                    #    2.823 GHz                      ( +-  0.56% )
+        1727087498      instructions              #    0.71  insn per cycle           ( +-  0.17% )
+         426523415      branches                  #  492.244 M/sec                    ( +-  0.16% )
+           3077146      branch-misses             #    0.72% of all branches          ( +-  0.34% )
+
+       0.972758220 seconds time elapsed                                          ( +-  0.56% )
+
+***************** Tamaño  32  KBytes. N vale (slots):  4096  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+        861.327658      task-clock (msec)         #    0.889 CPUs utilized            ( +-  0.68% )
+                56      context-switches          #    0.065 K/sec                    ( +-  1.30% )
+                 0      cpu-migrations            #    0.000 K/sec                    ( +- 66.67% )
+              1888      page-faults               #    0.002 M/sec                    ( +-  0.40% )
+        2458687515      cycles                    #    2.855 GHz                      ( +-  0.52% )
+        1729045862      instructions              #    0.70  insn per cycle           ( +-  0.17% )
+         427007574      branches                  #  495.755 M/sec                    ( +-  0.17% )
+           3082720      branch-misses             #    0.72% of all branches          ( +-  0.23% )
+
+       0.968743018 seconds time elapsed                                          ( +-  0.60% )
+
+***************** Tamaño  64  KBytes. N vale (slots):  8192  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+        868.067389      task-clock (msec)         #    0.891 CPUs utilized            ( +-  0.73% )
+                56      context-switches          #    0.065 K/sec                    ( +-  1.03% )
+                 0      cpu-migrations            #    0.000 K/sec                    ( +-100.00% )
+              1887      page-faults               #    0.002 M/sec                    ( +-  0.40% )
+        2479145748      cycles                    #    2.856 GHz                      ( +-  0.29% )
+        1743066879      instructions              #    0.70  insn per cycle           ( +-  0.31% )
+         429973944      branches                  #  495.323 M/sec                    ( +-  0.28% )
+           3121965      branch-misses             #    0.73% of all branches          ( +-  0.41% )
+
+       0.974229481 seconds time elapsed                                          ( +-  0.65% )
+
+***************** Tamaño  128  KBytes. N vale (slots):  16384  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+        859.266940      task-clock (msec)         #    0.889 CPUs utilized            ( +-  0.74% )
+                57      context-switches          #    0.066 K/sec                    ( +-  3.03% )
+                 0      cpu-migrations            #    0.000 K/sec                    ( +- 71.15% )
+              1886      page-faults               #    0.002 M/sec                    ( +-  0.39% )
+        2493707900      cycles                    #    2.902 GHz                      ( +-  0.23% )
+        1761461731      instructions              #    0.71  insn per cycle           ( +-  0.05% )
+         433407163      branches                  #  504.392 M/sec                    ( +-  0.05% )
+           3223462      branch-misses             #    0.74% of all branches          ( +-  0.18% )
+
+       0.966137859 seconds time elapsed                                          ( +-  0.66% )
+
+***************** Tamaño  256  KBytes. N vale (slots):  32768  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+        884.375042      task-clock (msec)         #    0.893 CPUs utilized            ( +-  0.56% )
+                55      context-switches          #    0.062 K/sec                    ( +-  1.52% )
+                 0      cpu-migrations            #    0.000 K/sec                    ( +- 66.67% )
+              1887      page-faults               #    0.002 M/sec                    ( +-  0.40% )
+        2587786889      cycles                    #    2.926 GHz                      ( +-  0.28% )
+        1848658877      instructions              #    0.71  insn per cycle           ( +-  0.23% )
+         452756768      branches                  #  511.951 M/sec                    ( +-  0.21% )
+           3389483      branch-misses             #    0.75% of all branches          ( +-  0.35% )
+
+       0.990187620 seconds time elapsed                                          ( +-  0.52% )
+
+***************** Tamaño  512  KBytes. N vale (slots):  65536  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+        952.511317      task-clock (msec)         #    0.899 CPUs utilized            ( +-  0.88% )
+                57      context-switches          #    0.060 K/sec                    ( +-  1.60% )
+                 0      cpu-migrations            #    0.001 K/sec                    ( +- 44.72% )
+              1886      page-faults               #    0.002 M/sec                    ( +-  0.40% )
+        2700377569      cycles                    #    2.835 GHz                      ( +-  0.55% )
+        2008936948      instructions              #    0.74  insn per cycle           ( +-  0.15% )
+         488261680      branches                  #  512.605 M/sec                    ( +-  0.13% )
+           3642026      branch-misses             #    0.75% of all branches          ( +-  0.30% )
+
+       1.059969846 seconds time elapsed                                          ( +-  0.78% )
+
+***************** Tamaño  1024  KBytes. N vale (slots):  131072  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+       1020.730896      task-clock (msec)         #    0.906 CPUs utilized            ( +-  0.61% )
+                59      context-switches          #    0.058 K/sec                    ( +-  0.91% )
+                 0      cpu-migrations            #    0.000 K/sec                    ( +- 55.28% )
+              1888      page-faults               #    0.002 M/sec                    ( +-  0.39% )
+        2993571839      cycles                    #    2.933 GHz                      ( +-  0.23% )
+        2297567412      instructions              #    0.77  insn per cycle           ( +-  0.24% )
+         551486706      branches                  #  540.286 M/sec                    ( +-  0.22% )
+           4148146      branch-misses             #    0.75% of all branches          ( +-  0.35% )
+
+       1.126884461 seconds time elapsed                                          ( +-  0.54% )
+
+***************** Tamaño  2048  KBytes. N vale (slots):  262144  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+       1217.134389      task-clock (msec)         #    0.919 CPUs utilized            ( +-  0.60% )
+                61      context-switches          #    0.050 K/sec                    ( +-  1.82% )
+                 0      cpu-migrations            #    0.000 K/sec                    ( +- 33.33% )
+              1889      page-faults               #    0.002 M/sec                    ( +-  0.42% )
+        3605490174      cycles                    #    2.962 GHz                      ( +-  0.17% )
+        2983913323      instructions              #    0.83  insn per cycle           ( +-  0.10% )
+         700271199      branches                  #  575.344 M/sec                    ( +-  0.09% )
+           5372810      branch-misses             #    0.77% of all branches          ( +-  0.14% )
+
+       1.324010950 seconds time elapsed                                          ( +-  0.53% )
+
+***************** Tamaño  4096  KBytes. N vale (slots):  524288  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+       1589.922562      task-clock (msec)         #    0.937 CPUs utilized            ( +-  0.47% )
+                65      context-switches          #    0.041 K/sec                    ( +-  1.66% )
+                 0      cpu-migrations            #    0.000 K/sec                    ( +- 33.33% )
+              1888      page-faults               #    0.001 M/sec                    ( +-  0.40% )
+        4799594134      cycles                    #    3.019 GHz                      ( +-  0.20% )
+        4325138952      instructions              #    0.90  insn per cycle           ( +-  0.18% )
+         990650847      branches                  #  623.081 M/sec                    ( +-  0.16% )
+           7803213      branch-misses             #    0.79% of all branches          ( +-  0.28% )
+
+       1.696233168 seconds time elapsed                                          ( +-  0.43% )
+
+***************** Tamaño  8192  KBytes. N vale (slots):  1048576  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+       2312.505257      task-clock (msec)         #    0.956 CPUs utilized            ( +-  0.29% )
+                74      context-switches          #    0.032 K/sec                    ( +-  1.50% )
+                 0      cpu-migrations            #    0.000 K/sec                    ( +- 50.92% )
+              2163      page-faults               #    0.935 K/sec                    ( +-  0.33% )
+        7148387729      cycles                    #    3.091 GHz                      ( +-  0.08% )
+        6931954086      instructions              #    0.97  insn per cycle           ( +-  0.14% )
+        1553796278      branches                  #  671.910 M/sec                    ( +-  0.13% )
+          12618565      branch-misses             #    0.81% of all branches          ( +-  0.16% )
+
+       2.419618178 seconds time elapsed                                          ( +-  0.29% )
+
+***************** Tamaño  16384  KBytes. N vale (slots):  2097152  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+       3781.288791      task-clock (msec)         #    0.973 CPUs utilized            ( +-  0.18% )
+                87      context-switches          #    0.023 K/sec                    ( +-  1.57% )
+                 1      cpu-migrations            #    0.000 K/sec                    ( +- 44.44% )
+              2161      page-faults               #    0.571 K/sec                    ( +-  0.35% )
+       11770247138      cycles                    #    3.113 GHz                      ( +-  0.10% )
+       12110505635      instructions              #    1.03  insn per cycle           ( +-  0.14% )
+        2672866961      branches                  #  706.867 M/sec                    ( +-  0.13% )
+          22175403      branch-misses             #    0.83% of all branches          ( +-  0.17% )
+
+       3.887309980 seconds time elapsed                                          ( +-  0.17% )
+
+***************** Tamaño  32768  KBytes. N vale (slots):  4194304  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+       6691.894302      task-clock (msec)         #    0.984 CPUs utilized            ( +-  0.13% )
+               122      context-switches          #    0.018 K/sec                    ( +-  1.26% )
+                 1      cpu-migrations            #    0.000 K/sec                    ( +- 44.72% )
+              2326      page-faults               #    0.348 K/sec                    ( +-  0.32% )
+       21007128966      cycles                    #    3.139 GHz                      ( +-  0.07% )
+       22368310614      instructions              #    1.06  insn per cycle           ( +-  0.20% )
+        4889525336      branches                  #  730.664 M/sec                    ( +-  0.20% )
+          41052646      branch-misses             #    0.84% of all branches          ( +-  0.20% )
+
+       6.797781782 seconds time elapsed                                          ( +-  0.13% )
+
+***************** Tamaño  65536  KBytes. N vale (slots):  8388608  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+      12527.478840      task-clock (msec)         #    0.992 CPUs utilized            ( +-  0.05% )
+               190      context-switches          #    0.015 K/sec                    ( +-  1.10% )
+                 0      cpu-migrations            #    0.000 K/sec                    ( +- 71.15% )
+              2510      page-faults               #    0.200 K/sec                    ( +-  0.31% )
+       39697048148      cycles                    #    3.169 GHz                      ( +-  0.05% )
+       43154446910      instructions              #    1.09  insn per cycle           ( +-  0.22% )
+        9381603958      branches                  #  748.882 M/sec                    ( +-  0.22% )
+          80653614      branch-misses             #    0.86% of all branches          ( +-  1.81% )
+
+      12.631202643 seconds time elapsed                                          ( +-  0.05% )
+
+********************************************************************
