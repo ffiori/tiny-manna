@@ -1,3 +1,4 @@
+********************************************************************
 ***************** NEW TEST BEGINS! *****************
 ***************** Tamaño  8  KBytes. N vale (slots):  1024  *****************
 estado inicial estable de la pila de arena...LISTO
@@ -771,3 +772,113 @@ evolucion de la pila de arena...LISTO: se acabo el tiempo
       10.522251125 seconds time elapsed                                          ( +-  0.06% )
 
 ********************************************************************
+***************** NEW TEST BEGINS! *****************
+***************** Tamaño  131072  KBytes. N vale (slots):  16777216  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+      20149.136989      task-clock (msec)         #    0.995 CPUs utilized            ( +-  0.11% )
+               299      context-switches          #    0.015 K/sec                    ( +-  0.66% )
+                 4      cpu-migrations            #    0.000 K/sec                    ( +- 15.59% )
+              3000      page-faults               #    0.149 K/sec                    ( +-  0.28% )
+       63571206346      cycles                    #    3.155 GHz                      ( +-  0.13% )
+       69552955140      instructions              #    1.09  insn per cycle           ( +-  0.20% )
+       15095597918      branches                  #  749.193 M/sec                    ( +-  0.20% )
+         126737033      branch-misses             #    0.84% of all branches          ( +-  0.20% )
+
+      20.251094183 seconds time elapsed                                          ( +-  0.11% )
+
+***************** Tamaño  262144  KBytes. N vale (slots):  33554432  *****************
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+estado inicial estable de la pila de arena...LISTO
+estado inicial desestabilizado de la pila de arena...LISTO
+evolucion de la pila de arena...LISTO: se acabo el tiempo
+
+
+ Performance counter stats for './tiny_manna_ondevice_reduce' (10 runs):
+
+      39759.546747      task-clock (msec)         #    0.999 CPUs utilized            ( +-  0.07% )
+              3714      context-switches          #    0.093 K/sec                    ( +- 14.78% )
+                 4      cpu-migrations            #    0.000 K/sec                    ( +- 22.27% )
+              3372      page-faults               #    0.085 K/sec                    ( +-  0.20% )
+      126131551243      cycles                    #    3.172 GHz                      ( +-  0.09% )
+      139009828349      instructions              #    1.10  insn per cycle           ( +-  0.18% )
+       30114759231      branches                  #  757.422 M/sec                    ( +-  0.18% )
+         254008749      branch-misses             #    0.84% of all branches          ( +-  0.19% )
+
+      39.816645453 seconds time elapsed                                          ( +-  0.07% )
